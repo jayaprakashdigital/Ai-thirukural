@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="jp-favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="jp-favicon-16.png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulseDot { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+    * { box-sizing:border-box; font-family:'Inter',sans-serif; }
+    body { margin:0; background:#09090B; }
+    ::-webkit-scrollbar { width:8px; height:8px; }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:8px; }
+    a { color:#c084fc; }
+    a:hover { color:#e0aaff; }
+  </style>
+</helmet>
+
+<div style="display:flex; height:100vh; background:#09090B; color:#e4e4e7; overflow:hidden;">
+
+  <!-- SIDEBAR -->
+  <aside style="width:240px; flex-shrink:0; background:rgba(17,24,39,0.55); backdrop-filter:blur(20px); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column;">
+    <div style="padding:20px 20px 16px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div style="width:34px; height:34px; border-radius:9px; overflow:hidden; flex-shrink:0;"><img src="jp-logo-mark.png" alt="JP Personal AI Studio" style="width:100%; height:100%; object-fit:cover;" /></div>
+      <div style="min-width:0;">
+        <div style="font-weight:700; font-size:13.5px; color:#f4f4f5; letter-spacing:-0.01em; white-space:nowrap;">JP Personal AI</div>
+        <div style="font-size:10.5px; color:#71717a; white-space:nowrap;">Content Studio</div>
+      </div>
+    </div>
+
+    <nav style="flex:1; overflow-y:auto; padding:14px 12px; display:flex; flex-direction:column; gap:2px;">
+      <sc-for list="{{ navSections }}" as="section" hint-placeholder-count="3">
+        <div style="margin:14px 0 6px 0;">
+          <div style="font-size:10px; font-weight:700; color:#52525b; text-transform:uppercase; letter-spacing:0.08em; padding:0 10px 6px 10px;">{{ section.label }}</div>
+          <sc-for list="{{ section.items }}" as="item" hint-placeholder-count="3">
+            <div onClick="{{ item.onClick }}" style="{{ item.style }}">
+              <i data-lucide="{{ item.icon }}" style="width:16px; height:16px; flex-shrink:0;"></i>
+              <span style="font-size:13px; font-weight:500;">{{ item.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+
+    <div style="padding:14px; border-top:1px solid rgba(255,255,255,0.06); position:relative;">
+      <div onClick="{{ toggleProfileMenu }}" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; background:rgba(255,255,255,0.03); cursor:pointer;">
+        <div style="width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#d946ef,#6366F1); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:white; flex-shrink:0;">JP</div>
+        <div style="min-width:0; flex:1;">
+          <div style="font-size:12px; font-weight:600; color:#e4e4e7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">JP</div>
+          <div style="font-size:10.5px; color:#22C55E; display:flex; align-items:center; gap:4px;">
+            <span style="width:5px; height:5px; border-radius:50%; background:#22C55E; display:inline-block;"></span>Free Tier Active
+          </div>
+        </div>
+        <i data-lucide="chevrons-up-down" style="width:14px; height:14px; color:#71717a; flex-shrink:0;"></i>
+      </div>
+      <sc-if value="{{ profileMenuOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed; inset:0; z-index:29;" onClick="{{ closeHeaderMenu }}"></div>
+        <div onClick="{{ stopProp }}" style="position:absolute; bottom:78px; left:14px; right:14px; background:#18181b; border:1px solid rgba(255,255,255,0.09); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); z-index:30; padding:12px; display:flex; flex-direction:column; gap:10px;">
+          <div>
+            <div style="font-size:10px; font-weight:700; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Environment</div>
+            <div style="display:flex; gap:6px;">
+              <div onClick="{{ setEnvDev }}" style="flex:1; text-align:center; padding:6px; border-radius:7px; font-size:11.5px; font-weight:600; cursor:pointer; background:{{ envDevBg }}; color:{{ envDevColor }};">Development</div>
+              <div onClick="{{ setEnvProd }}" style="flex:1; text-align:center; padding:6px; border-radius:7px; font-size:11.5px; font-weight:600; cursor:pointer; background:{{ envProdBg }}; color:{{ envProdColor }};">Production</div>
+            </div>
+          </div>
+          <div style="height:1px; background:rgba(255,255,255,0.07);"></div>
+          <a href="AI Thirukkural Studio.dc.html" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer; text-decoration:none;">
+            <i data-lucide="layout-grid" style="width:14px; height:14px;"></i> All Projects
+          </a>
+          <div onClick="{{ goSettings }}" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer;">
+            <i data-lucide="settings" style="width:14px; height:14px;"></i> Settings &amp; Providers
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </aside>
+
+  <!-- MAIN COLUMN -->
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; overflow:hidden;">
+
+    <!-- TOP NAV -->
+    <header style="height:64px; flex-shrink:0; display:flex; align-items:center; gap:16px; padding:0 24px; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(9,9,11,0.7); backdrop-filter:blur(16px); position:sticky; top:0; z-index:20;">
+      <div style="position:relative; flex-shrink:1; min-width:0;">
+        <div onClick="{{ toggleProjectMenu }}" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#a1a1aa; cursor:pointer; padding:6px 8px; margin:-6px -8px; border-radius:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <span style="color:#71717a;">Project</span>
+          <i data-lucide="chevron-right" style="width:13px; height:13px; color:#3f3f46;"></i>
+          <span style="color:#f4f4f5; font-weight:600;">{{ currentViewLabel }}</span>
+          <i data-lucide="chevron-down" style="width:13px; height:13px; color:#52525b; margin-left:2px;"></i>
+        </div>
+        <sc-if value="{{ projectMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:fixed; inset:0; z-index:29;" onClick="{{ closeHeaderMenu }}"></div>
+          <div onClick="{{ stopProp }}" style="position:absolute; top:38px; left:0; width:260px; background:#18181b; border:1px solid rgba(255,255,255,0.09); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); z-index:30; padding:12px; display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:13px; font-weight:700; color:#f4f4f5;">JP Personal AI Studio</div>
+            <div style="font-size:11.5px; color:#71717a;">Daily AI &amp; marketing content · Free tier</div>
+            <div style="height:1px; background:rgba(255,255,255,0.07); margin:2px 0;"></div>
+            <a href="AI Thirukkural Studio.dc.html" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer; text-decoration:none;">
+              <i data-lucide="layout-grid" style="width:14px; height:14px;"></i> All Projects
+            </a>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="flex:1 1 100px; min-width:60px; max-width:420px; position:relative; margin-left:12px;">
+        <i data-lucide="search" style="width:15px; height:15px; color:#52525b; position:absolute; left:11px; top:50%; transform:translateY(-50%);"></i>
+        <input value="{{ globalSearch }}" onChange="{{ onGlobalSearch }}" placeholder="Search topics, videos..." style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:8px 12px 8px 34px; font-size:12.5px; color:#e4e4e7; outline:none;" />
+        <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:fixed; inset:0; z-index:29;" onClick="{{ clearSearch }}"></div>
+          <div onClick="{{ stopProp }}" style="position:absolute; top:40px; left:0; width:340px; max-width:80vw; background:#18181b; border:1px solid rgba(255,255,255,0.09); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); z-index:30; padding:6px; max-height:340px; overflow-y:auto;">
+            <sc-if value="{{ searchHasResults }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ searchResults }}" as="r" hint-placeholder-count="3">
+                <div onClick="{{ r.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; cursor:pointer;">
+                  <span style="font-size:11px; font-weight:700; color:#f0abfc; background:rgba(217,70,239,0.15); border-radius:6px; padding:2px 6px; flex-shrink:0; white-space:nowrap;">Day {{ r.day }}</span>
+                  <div style="min-width:0; flex:1;">
+                    <div style="font-size:12.5px; color:#e4e4e7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.topic }}</div>
+                    <div style="font-size:10.5px; color:#71717a;">{{ r.category }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ searchNoResults }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:16px; text-align:center; font-size:12px; color:#71717a;">No matches.</div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="flex:1; min-width:0;"></div>
+
+      <div style="position:relative; flex-shrink:0;">
+        <select value="{{ selectedModel }}" onChange="{{ onModelChange }}" style="appearance:none; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; font-weight:500; padding:7px 26px 7px 10px; border-radius:8px; outline:none; cursor:pointer; max-width:160px;">
+          <option>DeepSeek V3.1 (Free)</option>
+          <option>Qwen 3 (Free)</option>
+          <option>Gemini 2.5 Flash Lite (Free)</option>
+          <option>Claude Opus 4.6</option>
+        </select>
+      </div>
+
+      <button style="width:36px; height:36px; flex-shrink:0; border-radius:9px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;">
+        <i data-lucide="bell" style="width:16px; height:16px; color:#a1a1aa;"></i>
+        <span style="position:absolute; top:7px; right:8px; width:6px; height:6px; border-radius:50%; background:#EF4444;"></span>
+      </button>
+
+      <button onClick="{{ openNewInput }}" style="display:flex; align-items:center; gap:6px; padding:8px 16px; flex-shrink:0; white-space:nowrap; border-radius:9px; border:none; background:linear-gradient(135deg,#d946ef,#6366F1); color:white; font-size:12.5px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(217,70,239,0.3);">
+        <i data-lucide="plus" style="width:14px; height:14px;"></i> New Daily Input
+      </button>
+    </header>
+
+    <!-- CONTENT -->
+    <main style="flex:1; overflow-y:auto; padding:28px 32px 60px 32px;">
+
+      <sc-if value="{{ viewIs.projects }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:22px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Projects</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Every AI content factory running under this workspace.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px;">
+            <a href="AI Thirukkural Studio.dc.html" style="text-decoration:none; border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); display:block;">
+              <div style="width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,#6366F1,#14B8A6); display:flex; align-items:center; justify-content:center; margin-bottom:14px; font-weight:800; font-size:13px; color:white;">குறள்</div>
+              <div style="font-size:16px; font-weight:800; color:#fafafa; margin-bottom:4px;">AI Thirukkural Studio</div>
+              <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:16px; line-height:1.5;">Converts all 1,330 Thirukkurals into educational Tamil videos.</div>
+              <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#a5b4fc;">Open project <i data-lucide="arrow-right" style="width:13px; height:13px;"></i></div>
+            </a>
+            <div style="border-radius:16px; padding:22px; background:linear-gradient(135deg, rgba(217,70,239,0.16), rgba(99,102,241,0.08)); border:1px solid rgba(217,70,239,0.3); position:relative;">
+              <div style="position:absolute; top:10px; right:10px; font-size:10px; font-weight:700; color:#86efac; background:rgba(34,197,94,0.15); padding:3px 8px; border-radius:6px;">ACTIVE</div>
+              <div style="width:42px; height:42px; border-radius:11px; overflow:hidden; margin-bottom:14px;"><img src="jp-logo-mark.png" style="width:100%; height:100%; object-fit:cover;" /></div>
+              <div style="font-size:16px; font-weight:800; color:#fafafa; margin-bottom:4px;">JP Personal AI Studio</div>
+              <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:16px; line-height:1.5;">Daily AI &amp; digital-marketing content for Instagram, YouTube and TikTok.</div>
+              <div style="display:flex; gap:14px; font-size:11.5px; color:#71717a;"><span><b style="color:#e4e4e7;">{{ postsPublished }}</b> published</span><span><b style="color:#e4e4e7;">{{ streakDays }}</b> day streak</span></div>
+            </div>
+            <a href="AI Tamil News Studio.dc.html" style="text-decoration:none; border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); display:block;">
+              <div style="width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,#6366F1,#0ea5e9); display:flex; align-items:center; justify-content:center; margin-bottom:14px;"><i data-lucide="newspaper" style="width:20px; height:20px; color:white;"></i></div>
+              <div style="font-size:16px; font-weight:800; color:#fafafa; margin-bottom:4px;">AI Tamil News Studio</div>
+              <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:16px; line-height:1.5;">Pulls daily stories from Tamil news sites and turns them into short AI news videos.</div>
+              <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#a5b4fc;">Open project <i data-lucide="arrow-right" style="width:13px; height:13px;"></i></div>
+            </a>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.dashboard }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex; flex-direction:column; gap:22px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Studio Overview</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Daily AI &amp; digital-marketing content — from a daily topic to a published post.</p>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:18px;">
+            <div style="border-radius:16px; padding:22px; background:linear-gradient(135deg, rgba(217,70,239,0.16), rgba(99,102,241,0.08)); border:1px solid rgba(217,70,239,0.25); position:relative; overflow:hidden;">
+              <div style="position:absolute; top:-40px; right:-40px; width:160px; height:160px; border-radius:50%; background:radial-gradient(circle, rgba(217,70,239,0.22), transparent 70%);"></div>
+              <div style="font-size:12px; font-weight:600; color:#f0abfc; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">This Month</div>
+              <div style="display:flex; align-items:baseline; gap:8px;">
+                <span style="font-size:38px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">{{ postsPublished }}</span>
+                <span style="font-size:13px; color:#e9d5ff;">posts published</span>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:16px;">
+                <div><div style="font-size:18px; font-weight:700; color:#f4f4f5;">{{ streakDays }}</div><div style="font-size:11px; color:#a1a1aa; white-space:nowrap;">Day streak</div></div>
+                <div><div style="font-size:18px; font-weight:700; color:#f4f4f5;">{{ totalEntries }}</div><div style="font-size:11px; color:#a1a1aa; white-space:nowrap;">Days planned</div></div>
+                <div><div style="font-size:18px; font-weight:700; color:#f4f4f5;">4</div><div style="font-size:11px; color:#a1a1aa; white-space:nowrap;">Platforms</div></div>
+              </div>
+            </div>
+
+            <div style="border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(12px);">
+              <div style="font-size:12px; font-weight:600; color:#93c5fd; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Platforms Live</div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <sc-for list="{{ platformBreakdown }}" as="p" hint-placeholder-count="4">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <i data-lucide="{{ p.icon }}" style="width:14px; height:14px; color:{{ p.color }}; flex-shrink:0;"></i>
+                    <span style="font-size:12px; color:#d4d4d8; flex:1;">{{ p.label }}</span>
+                    <span style="font-size:13px; font-weight:700; color:#f4f4f5;">{{ p.count }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(12px);">
+              <div style="font-size:12px; font-weight:600; color:#fbbf24; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Pipeline Health</div>
+              <div style="display:flex; align-items:baseline; gap:8px;">
+                <span style="font-size:38px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">97.4%</span>
+                <span style="font-size:12.5px; color:#a1a1aa;">on-time</span>
+              </div>
+              <div style="display:flex; gap:6px; margin-top:16px;">
+                <sc-for list="{{ healthDots }}" as="dot" hint-placeholder-count="8">
+                  <span style="{{ dot.style }}"></span>
+                </sc-for>
+              </div>
+              <div style="margin-top:8px; font-size:11.5px; color:#71717a;">7 pipeline stages monitored</div>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Content Stats</div>
+            <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:14px;">
+              <sc-for list="{{ videoStats }}" as="s" hint-placeholder-count="6">
+                <div style="border-radius:14px; padding:16px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; gap:10px;">
+                  <div style="width:32px; height:32px; border-radius:9px; background:{{ s.iconBg }}; display:flex; align-items:center; justify-content:center;"><i data-lucide="{{ s.icon }}" style="width:15px; height:15px; color:{{ s.iconColor }};"></i></div>
+                  <div><div style="font-size:20px; font-weight:800; color:#fafafa;">{{ s.value }}</div><div style="font-size:11px; color:#71717a;">{{ s.label }}</div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:18px;">
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Posts per Week by Platform</div>
+              <div style="height:220px;"><canvas ref="{{ weeklyChartRef }}"></canvas></div>
+            </div>
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Topic Categories</div>
+              <div style="height:220px;"><canvas ref="{{ categoryChartRef }}"></canvas></div>
+            </div>
+          </div>
+
+          <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8;">Recent Daily Inputs</div>
+              <div onClick="{{ goDailyInput }}" style="font-size:12px; color:#f0abfc; cursor:pointer; font-weight:600;">View calendar →</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <sc-for list="{{ recentEntries }}" as="e" hint-placeholder-count="5">
+                <div onClick="{{ e.onClick }}" style="display:flex; align-items:center; gap:14px; padding:11px 12px; background:rgba(255,255,255,0.025); border-radius:10px; cursor:pointer;">
+                  <span style="font-size:11px; font-weight:700; color:#a1a1aa; width:38px; flex-shrink:0;">Jul {{ e.day }}</span>
+                  <span style="font-size:12.5px; color:#e4e4e7; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ e.topic }}</span>
+                  <span style="font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:6px; background:{{ e.statusBg }}; color:{{ e.statusColor }}; flex-shrink:0;">{{ e.statusLabel }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.dailyinput }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Daily Input</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Give the pipeline one topic a day — it plans, scripts, and cuts it for every platform.</p>
+          </div>
+
+          <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+              <div style="font-size:14px; font-weight:700; color:#f4f4f5;">July 2026</div>
+              <div style="display:flex; gap:14px; font-size:11px; color:#a1a1aa;">
+                <span><span style="display:inline-block; width:8px; height:8px; border-radius:2px; background:#6366F1; margin-right:5px;"></span>Idea</span>
+                <span><span style="display:inline-block; width:8px; height:8px; border-radius:2px; background:#F59E0B; margin-right:5px;"></span>Scripted</span>
+                <span><span style="display:inline-block; width:8px; height:8px; border-radius:2px; background:#0ea5e9; margin-right:5px;"></span>Recorded/Edited</span>
+                <span><span style="display:inline-block; width:8px; height:8px; border-radius:2px; background:#22C55E; margin-right:5px;"></span>Published</span>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; margin-bottom:8px;">
+              <sc-for list="{{ weekdayLabels }}" as="w" hint-placeholder-count="7">
+                <div style="text-align:center; font-size:10.5px; font-weight:700; color:#52525b; text-transform:uppercase;">{{ w }}</div>
+              </sc-for>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:8px;">
+              <sc-for list="{{ calendarCells }}" as="c" hint-placeholder-count="35">
+                <div onClick="{{ c.onClick }}" style="{{ c.style }}">
+                  <sc-if value="{{ c.hasDay }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11.5px; font-weight:700; color:#e4e4e7;">{{ c.day }}</div>
+                    <div style="font-size:9.5px; color:{{ c.statusColor }}; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ c.statusLabel }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:16px;">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-right:auto;">All Entries</div>
+              <div style="flex:1; min-width:200px; max-width:280px; position:relative;">
+                <i data-lucide="search" style="width:14px; height:14px; color:#52525b; position:absolute; left:11px; top:50%; transform:translateY(-50%);"></i>
+                <input value="{{ diSearch }}" onChange="{{ onDiSearch }}" placeholder="Search topic or category..." style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#e4e4e7; font-size:12px; padding:8px 10px 8px 32px; border-radius:8px; outline:none;" />
+              </div>
+              <select value="{{ diStatus }}" onChange="{{ onDiStatus }}" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; padding:8px 12px; border-radius:8px; outline:none;">
+                <option value="all">All Statuses</option>
+                <option value="idea">Idea</option>
+                <option value="scripted">Scripted</option>
+                <option value="recorded">Recorded</option>
+                <option value="edited">Edited</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <sc-for list="{{ diRows }}" as="e" hint-placeholder-count="8">
+                <div onClick="{{ e.onClick }}" style="display:flex; align-items:center; gap:14px; padding:11px 12px; background:rgba(255,255,255,0.025); border-radius:10px; cursor:pointer;">
+                  <span style="font-size:11px; font-weight:700; color:#a1a1aa; width:44px; flex-shrink:0;">Jul {{ e.day }}</span>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-size:12.5px; color:#e4e4e7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ e.topic }}</div>
+                    <div style="font-size:10.5px; color:#71717a;">{{ e.category }}</div>
+                  </div>
+                  <span style="font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:6px; background:{{ e.statusBg }}; color:{{ e.statusColor }}; flex-shrink:0;">{{ e.statusLabel }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.pipeline }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Content Pipeline</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">One topic in, one post per platform out.</p>
+          </div>
+          <div style="border-radius:16px; padding:28px 20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); overflow-x:auto;">
+            <div style="display:flex; align-items:center; min-width:max-content;">
+              <sc-for list="{{ pipelineStages }}" as="s" hint-placeholder-count="7">
+                <div onClick="{{ s.onClick }}" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; width:126px;">
+                  <div style="width:52px; height:52px; border-radius:14px; background:{{ s.bg }}; border:1.5px solid {{ s.border }}; display:flex; align-items:center; justify-content:center; {{ s.pulse }}">
+                    <i data-lucide="{{ s.icon }}" style="width:22px; height:22px; color:{{ s.color }};"></i>
+                  </div>
+                  <div style="font-size:11.5px; font-weight:600; color:#d4d4d8; text-align:center;">{{ s.label }}</div>
+                </div>
+                <sc-if value="{{ s.hasNext }}" hint-placeholder-val="{{ true }}">
+                  <div style="flex:1; height:2px; background:linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); margin:0 -6px 26px -6px; min-width:24px;"></div>
+                </sc-if>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:14px;">
+            <sc-for list="{{ platformCards }}" as="p" hint-placeholder-count="4">
+              <div style="border-radius:14px; padding:18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <i data-lucide="{{ p.icon }}" style="width:18px; height:18px; color:{{ p.color }};"></i>
+                  <div style="font-size:13px; font-weight:700; color:#f4f4f5;">{{ p.label }}</div>
+                </div>
+                <div style="font-size:11.5px; color:#71717a; line-height:1.5;">{{ p.spec }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.videos }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Videos</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Every rendered post, across every platform.</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="flex:1; min-width:220px; position:relative;">
+              <i data-lucide="search" style="width:14px; height:14px; color:#52525b; position:absolute; left:11px; top:50%; transform:translateY(-50%);"></i>
+              <input value="{{ vidSearch }}" onChange="{{ onVidSearch }}" placeholder="Search by topic..." style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#e4e4e7; font-size:12.5px; padding:9px 12px 9px 34px; border-radius:9px; outline:none;" />
+            </div>
+            <select value="{{ vidPlatform }}" onChange="{{ onVidPlatform }}" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; padding:9px 12px; border-radius:9px; outline:none;">
+              <option value="all">All Platforms</option>
+              <option value="reel">IG Reel</option>
+              <option value="short">YT Short</option>
+              <option value="long">YT Long-form</option>
+              <option value="tiktok">TikTok</option>
+            </select>
+            <select value="{{ vidStatus }}" onChange="{{ onVidStatus }}" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; padding:9px 12px; border-radius:9px; outline:none;">
+              <option value="all">All Statuses</option>
+              <option value="Ready to Publish">Ready to Publish</option>
+              <option value="Published">Published</option>
+            </select>
+          </div>
+          <div style="font-size:12px; color:#71717a;">Showing {{ vidCount }} videos</div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:16px;">
+            <sc-for list="{{ vidItems }}" as="v" hint-placeholder-count="8">
+              <div style="border-radius:14px; overflow:hidden; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+                <div style="height:130px; background:{{ v.thumbBg }}; display:flex; align-items:center; justify-content:center; position:relative;">
+                  <i data-lucide="{{ v.platformIcon }}" style="width:26px; height:26px; color:rgba(255,255,255,0.85);"></i>
+                  <span style="position:absolute; top:8px; left:8px; font-size:9.5px; font-weight:700; padding:3px 7px; border-radius:6px; background:rgba(0,0,0,0.45); color:white;">{{ v.platformLabel }}</span>
+                  <span style="position:absolute; bottom:8px; right:8px; font-size:10px; font-weight:600; color:white; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:5px;">{{ v.duration }}</span>
+                </div>
+                <div style="padding:14px;">
+                  <div style="font-size:12.5px; font-weight:600; color:#e4e4e7; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ v.topic }}</div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                    <span style="font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:{{ v.statusBg }}; color:{{ v.statusColor }};">{{ v.status }}</span>
+                    <span style="font-size:11px; color:#fbbf24; display:flex; align-items:center; gap:3px;"><i data-lucide="star" style="width:11px; height:11px;"></i>{{ v.quality }}</span>
+                  </div>
+                  <div style="display:flex; gap:6px;">
+                    <button style="flex:1; padding:6px; border-radius:7px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:#a1a1aa; font-size:11px; cursor:pointer;">Preview</button>
+                    <button style="flex:1; padding:6px; border-radius:7px; border:none; background:rgba(217,70,239,0.15); color:#f0abfc; font-size:11px; font-weight:600; cursor:pointer;">Publish</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.settings }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease; max-width:720px;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Settings</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Providers, environment, and API keys.</p>
+          </div>
+          <div style="border-radius:14px; padding:18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:12.5px; font-weight:700; color:#d4d4d8; margin-bottom:12px;">Active Environment</div>
+            <div style="display:flex; gap:8px;">
+              <div onClick="{{ setEnvDev }}" style="padding:8px 16px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:600; background:{{ envDevBg }}; color:{{ envDevColor }};">Development</div>
+              <div onClick="{{ setEnvProd }}" style="padding:8px 16px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:600; background:{{ envProdBg }}; color:{{ envProdColor }};">Production</div>
+            </div>
+          </div>
+          <div style="border-radius:14px; padding:18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:12.5px; font-weight:700; color:#d4d4d8; margin-bottom:12px;">Providers</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <sc-for list="{{ providerRows }}" as="p" hint-placeholder-count="4">
+                <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,0.025); border-radius:9px;">
+                  <span style="font-size:12px; color:#a1a1aa; width:110px;">{{ p.stage }}</span>
+                  <span style="font-size:12.5px; color:#f4f4f5; font-weight:600; flex:1;">{{ p.provider }}</span>
+                  <span style="font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:rgba(34,197,94,0.12); color:#22C55E;">{{ p.tag }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+</div>
+
+<sc-if value="{{ dayDrawer }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDayDrawer }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px); z-index:40; display:flex; justify-content:flex-end;">
+    <div onClick="{{ stopProp }}" style="width:420px; height:100%; background:#111214; border-left:1px solid rgba(255,255,255,0.08); padding:26px; overflow-y:auto; animation:fadeUp 0.25s ease;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <div style="font-size:11px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em;">July {{ dayDrawer.day }}, 2026</div>
+        <button onClick="{{ closeDayDrawer }}" style="width:28px; height:28px; border-radius:8px; background:rgba(255,255,255,0.05); border:none; color:#a1a1aa; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i data-lucide="x" style="width:14px; height:14px;"></i></button>
+      </div>
+      <div style="font-size:16px; font-weight:700; color:#fafafa; margin-bottom:18px;">{{ dayDrawer.topic }}</div>
+
+      <div style="font-size:11px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Category</div>
+      <div style="font-size:13px; color:#d4d4d8; margin-bottom:16px;">{{ dayDrawer.category }}</div>
+
+      <div style="font-size:11px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Tone</div>
+      <div style="font-size:13px; color:#d4d4d8; margin-bottom:16px;">{{ dayDrawer.tone }}</div>
+
+      <div style="font-size:11px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Target Platforms</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;">
+        <sc-for list="{{ dayDrawer.platformChips }}" as="p" hint-placeholder-count="4">
+          <span style="display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:7px; background:rgba(255,255,255,0.05); color:#d4d4d8;"><i data-lucide="{{ p.icon }}" style="width:12px; height:12px;"></i>{{ p.label }}</span>
+        </sc-for>
+      </div>
+
+      <div style="font-size:11px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Status</div>
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px;">
+        <span style="font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:7px; background:{{ dayDrawer.statusBg }}; color:{{ dayDrawer.statusColor }};">{{ dayDrawer.statusLabel }}</span>
+      </div>
+
+      <sc-if value="{{ dayDrawer.canGenerate }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ generateDay }}" style="width:100%; padding:12px; border-radius:10px; border:none; background:linear-gradient(135deg,#d946ef,#6366F1); color:white; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <i data-lucide="{{ dayDrawer.genIcon }}" style="width:15px; height:15px;"></i> {{ dayDrawer.genLabel }}
+        </button>
+      </sc-if>
+
+      <div style="margin-top:24px; font-size:11.5px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Pipeline Progress</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <sc-for list="{{ dayDrawer.stageProgress }}" as="s" hint-placeholder-count="7">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:rgba(255,255,255,0.025); border-radius:8px;">
+            <i data-lucide="{{ s.icon }}" style="width:14px; height:14px; color:{{ s.color }};"></i>
+            <span style="font-size:12px; color:#d4d4d8; flex:1;">{{ s.label }}</span>
+            <i data-lucide="{{ s.statusIcon }}" style="width:14px; height:14px; color:{{ s.color }};"></i>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ stageDrawer }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeStage }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px); z-index:40; display:flex; justify-content:flex-end;">
+    <div onClick="{{ stopProp }}" style="width:400px; height:100%; background:#111214; border-left:1px solid rgba(255,255,255,0.08); padding:26px; overflow-y:auto; animation:fadeUp 0.25s ease;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:42px; height:42px; border-radius:11px; background:{{ stageDrawer.bg }}; display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="{{ stageDrawer.icon }}" style="width:19px; height:19px; color:{{ stageDrawer.color }};"></i>
+          </div>
+          <div>
+            <div style="font-size:15px; font-weight:700; color:#fafafa;">{{ stageDrawer.label }}</div>
+            <div style="font-size:11.5px; color:{{ stageDrawer.color }}; font-weight:600;">{{ stageDrawer.statusLabel }}</div>
+          </div>
+        </div>
+        <button onClick="{{ closeStage }}" style="width:28px; height:28px; border-radius:8px; background:rgba(255,255,255,0.05); border:none; color:#a1a1aa; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i data-lucide="x" style="width:14px; height:14px;"></i></button>
+      </div>
+      <div style="font-size:12.5px; color:#a1a1aa; line-height:1.6; margin-bottom:18px;">{{ stageDrawer.description }}</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Avg Time</div><div style="font-size:16px; font-weight:700; color:#f4f4f5;">{{ stageDrawer.avgTime }}</div></div>
+        <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Provider</div><div style="font-size:16px; font-weight:700; color:#f4f4f5;">{{ stageDrawer.provider }}</div></div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ showNewInputModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeNewInput }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(2px); z-index:50; display:flex; align-items:center; justify-content:center;">
+    <div onClick="{{ stopProp }}" style="width:440px; max-width:90vw; background:#111214; border:1px solid rgba(255,255,255,0.09); border-radius:16px; padding:24px; box-shadow:0 24px 60px rgba(0,0,0,0.55); animation:fadeUp 0.25s ease;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+        <div style="width:34px; height:34px; border-radius:9px; background:rgba(217,70,239,0.16); display:flex; align-items:center; justify-content:center;">
+          <i data-lucide="plus" style="width:16px; height:16px; color:#f0abfc;"></i>
+        </div>
+        <div style="font-size:16px; font-weight:700; color:#fafafa;">New Daily Input</div>
+      </div>
+      <p style="margin:0 0 18px 0; font-size:12.5px; color:#71717a;">Pick a planned day to give it a topic and start the pipeline.</p>
+      <div style="font-size:11px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Day</div>
+      <select value="{{ newInputDay }}" onChange="{{ onNewInputDay }}" style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#e4e4e7; font-size:13px; padding:10px 12px; border-radius:9px; outline:none; margin-bottom:20px;">
+        <sc-for list="{{ newInputOptions }}" as="o" hint-placeholder-count="1">
+          <option value="{{ o.value }}">{{ o.text }}</option>
+        </sc-for>
+      </select>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button onClick="{{ closeNewInput }}" style="padding:9px 16px; border-radius:9px; border:1px solid rgba(255,255,255,0.09); background:transparent; color:#a1a1aa; font-size:12.5px; font-weight:600; cursor:pointer;">Cancel</button>
+        <button onClick="{{ confirmNewInput }}" style="padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#d946ef,#6366F1); color:white; font-size:12.5px; font-weight:600; cursor:pointer;">Open Day</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+const PLATFORM_META = {
+  reel: { key:'reel', label: 'IG Reel', icon: 'clapperboard', color: '#e879f9' },
+  short: { key:'short', label: 'YT Short', icon: 'play-square', color: '#f87171' },
+  long: { key:'long', label: 'YT Long-form', icon: 'monitor-play', color: '#fb923c' },
+  tiktok: { key:'tiktok', label: 'TikTok', icon: 'music-2', color: '#67e8f9' },
+};
+
+const PIPELINE_DEF = [
+  { key: 'research', label: 'Research & Trend Scan', icon: 'search', status: 'success', description: 'Scans AI + marketing news and trending formats for the day\u2019s topic angle.', provider: 'DeepSeek V3.1' },
+  { key: 'hook', label: 'Hook & Script', icon: 'feather', status: 'success', description: 'Writes the opening hook and full script in JP\u2019s voice and tone.', provider: 'DeepSeek V3' },
+  { key: 'voice', label: 'Voice / VO', icon: 'mic', status: 'success', description: 'Generates a natural voiceover track from the script.', provider: 'Kokoro TTS' },
+  { key: 'edit', label: 'Edit & Captions', icon: 'scissors', status: 'warning', description: 'Cuts footage/b-roll, syncs voiceover, and burns in captions.', provider: 'FFmpeg' },
+  { key: 'repurpose', label: 'Repurpose', icon: 'copy', status: 'success', description: 'Reframes the master edit into Reel, Short, Long-form and TikTok cuts.', provider: 'OpenMontage' },
+  { key: 'qa', label: 'QA Review', icon: 'shield-check', status: 'success', description: 'Checks captions, pacing, and brand consistency before publish.', provider: 'Gemini 2.5 Flash Lite' },
+  { key: 'publish', label: 'Publish', icon: 'upload-cloud', status: 'success', description: 'Schedules and posts to each connected platform.', provider: 'Native APIs' },
+];
+
+const STATUS_META = {
+  idea: { label: 'Idea', color: '#a5b4fc', bg: 'rgba(99,102,241,0.14)' },
+  scripted: { label: 'Scripted', color: '#fbbf24', bg: 'rgba(245,158,11,0.14)' },
+  recorded: { label: 'Recorded', color: '#38bdf8', bg: 'rgba(14,165,233,0.14)' },
+  edited: { label: 'Edited', color: '#38bdf8', bg: 'rgba(14,165,233,0.14)' },
+  published: { label: 'Published', color: '#22C55E', bg: 'rgba(34,197,94,0.14)' },
+};
+const STATUS_ORDER = ['idea','scripted','recorded','edited','published'];
+const STATUS_TO_STAGE_COUNT = { idea: 0, scripted: 2, recorded: 3, edited: 5, published: 7 };
+
+let JPDATA = null;
+import('./jp-data.js').then(m => { JPDATA = m; });
+
+function seeded(n, mod) {
+  const x = Math.sin(n * 999) * 10000;
+  return Math.floor((x - Math.floor(x)) * mod);
+}
+
+class Component extends DCLogic {
+  state = {
+    view: 'dashboard',
+    headerMenu: null,
+    globalSearch: '',
+    selectedModel: 'DeepSeek V3.1 (Free)',
+    settingsEnv: 'Development',
+    calDay: null,
+    dayOverrides: {},
+    diSearch: '', diStatus: 'all',
+    vidSearch: '', vidPlatform: 'all', vidStatus: 'all',
+    stageDrawer: null,
+    showNewInputModal: false,
+    newInputDay: null,
+  };
+
+  componentDidMount() {
+    if (window.lucide) window.lucide.createIcons();
+    if (!JPDATA) import('./jp-data.js').then(m => { JPDATA = m; this.forceUpdate(); });
+  }
+  componentDidUpdate() {
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  setView(key) { this.setState({ view: key, headerMenu: null }); }
+  toggleHeaderMenu(name) { this.setState(s => ({ headerMenu: s.headerMenu === name ? null : name })); }
+
+  entryFor(day) {
+    if (!JPDATA) return null;
+    const base = JPDATA.getEntryByDay(day);
+    if (!base) return null;
+    const ov = this.state.dayOverrides[day];
+    return ov ? { ...base, ...ov } : base;
+  }
+
+  openDay(day) {
+    if (!this.entryFor(day)) return;
+    this.setState({ calDay: day, view: this.state.view === 'dashboard' ? 'dailyinput' : this.state.view });
+  }
+  closeDayDrawer() { this.setState({ calDay: null }); }
+
+  generateDay(day) {
+    const order = STATUS_ORDER;
+    const cur = this.entryFor(day);
+    const idx = Math.min(order.indexOf(cur.status) + 1, order.length - 1);
+    this.setState(s => ({ dayOverrides: { ...s.dayOverrides, [day]: { status: order[idx] } } }));
+  }
+
+  openStage(def) {
+    this.setState({ stageDrawer: { ...def, avgTime: (Math.random()*2+0.6).toFixed(1)+'s' } });
+  }
+  closeStage() { this.setState({ stageDrawer: null }); }
+
+  renderVals() {
+    const view = this.state.view;
+    const viewIs = {};
+    ['projects','dashboard','dailyinput','pipeline','videos','settings'].forEach(k => { viewIs[k] = view === k; });
+
+    const navSections = [
+      { label: 'Overview', items: [
+        { key: 'projects', label: 'Projects', icon: 'layout-grid' },
+        { key: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+      ]},
+      { label: 'Content', items: [
+        { key: 'dailyinput', label: 'Daily Input', icon: 'calendar-days' },
+        { key: 'pipeline', label: 'Content Pipeline', icon: 'git-branch' },
+        { key: 'videos', label: 'Videos', icon: 'video' },
+      ]},
+      { label: 'System', items: [
+        { key: 'settings', label: 'Settings', icon: 'settings' },
+      ]},
+    ].map(sec => ({
+      label: sec.label,
+      items: sec.items.map(it => ({
+        ...it,
+        onClick: () => this.setView(it.key),
+        style: `display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; margin-bottom:1px; color:${view === it.key ? '#f4f4f5' : '#a1a1aa'}; background:${view === it.key ? 'rgba(217,70,239,0.14)' : 'transparent'}; ${view === it.key ? 'box-shadow: inset 2px 0 0 #d946ef;' : ''}`,
+      })),
+    }));
+
+    const VIEW_LABELS = { projects: 'Projects', dashboard: 'Dashboard', dailyinput: 'Daily Input', pipeline: 'Content Pipeline', videos: 'Videos', settings: 'Settings' };
+
+    const headerMenu = this.state.headerMenu;
+    const profileMenuOpen = headerMenu === 'profile';
+    const projectMenuOpen = headerMenu === 'project';
+    const goSettings = () => this.setState({ view: 'settings', headerMenu: null });
+    const goDailyInput = () => this.setState({ view: 'dailyinput' });
+
+    const envDevBg = this.state.settingsEnv === 'Development' ? 'rgba(217,70,239,0.18)' : 'transparent';
+    const envDevColor = this.state.settingsEnv === 'Development' ? '#f0abfc' : '#71717a';
+    const envProdBg = this.state.settingsEnv === 'Production' ? 'rgba(217,70,239,0.18)' : 'transparent';
+    const envProdColor = this.state.settingsEnv === 'Production' ? '#f0abfc' : '#71717a';
+
+    let entries = JPDATA ? JPDATA.DAILY_ENTRIES.map(e => ({ ...e, ...(this.state.dayOverrides[e.day] || {}) })) : [];
+
+    // ---------- Global search ----------
+    const gq = (this.state.globalSearch || '').trim().toLowerCase();
+    let searchResults = [];
+    if (gq && JPDATA) {
+      searchResults = entries.filter(e => (e.topic + ' ' + e.category).toLowerCase().includes(gq)).slice(0, 6)
+        .map(e => ({ day: e.day, topic: e.topic, category: e.category, onClick: () => { this.setState({ globalSearch: '' }); this.openDay(e.day); } }));
+    }
+    const searchOpen = gq.length > 0;
+    const searchNoResults = searchOpen && searchResults.length === 0;
+
+    // ---------- Dashboard stats ----------
+    const postsPublished = entries.filter(e => e.status === 'published').length;
+    const totalEntries = entries.length;
+    let streakDays = 0;
+    for (let d = (JPDATA ? JPDATA.TODAY_DAY - 1 : 11); d >= 1; d--) {
+      const e = entries.find(x => x.day === d);
+      if (e && e.status === 'published') streakDays++; else if (e) break;
+    }
+
+    const platformBreakdown = Object.values(PLATFORM_META).map(p => ({
+      ...p,
+      count: entries.filter(e => e.platforms.includes(p.key)).length,
+    }));
+
+    const videoStats = [
+      { label: 'Posts Published', value: String(postsPublished), icon: 'upload-cloud', iconColor: '#86efac', iconBg: 'rgba(34,197,94,0.15)' },
+      { label: 'Posts Approved', value: String(entries.filter(e => ['edited','published'].includes(e.status)).length), icon: 'check-circle-2', iconColor: '#5eead4', iconBg: 'rgba(20,184,166,0.15)' },
+      { label: 'Avg Quality Score', value: '8.9/10', icon: 'star', iconColor: '#fcd34d', iconBg: 'rgba(245,158,11,0.15)' },
+      { label: 'Avg Turnaround', value: '2h 40m', icon: 'timer', iconColor: '#93c5fd', iconBg: 'rgba(99,102,241,0.15)' },
+      { label: 'Avg Cost / Post', value: '$0.24', icon: 'circle-dollar-sign', iconColor: '#fca5a5', iconBg: 'rgba(239,68,68,0.15)' },
+      { label: 'Day Streak', value: String(streakDays), icon: 'flame', iconColor: '#fdba74', iconBg: 'rgba(217,70,239,0.15)' },
+    ];
+
+    const healthDots = Array.from({ length: 8 }, (_, i) => ({ style: `width:16px; height:6px; border-radius:3px; background:${i < 7 ? '#22C55E' : '#F59E0B'};` }));
+
+    const recentEntries = entries.filter(e => e.day <= (JPDATA ? JPDATA.TODAY_DAY : 12)).slice(-5).reverse().map(e => {
+      const sm = STATUS_META[e.status];
+      return { day: e.day, topic: e.topic, statusLabel: sm.label, statusColor: sm.color, statusBg: sm.bg, onClick: () => this.openDay(e.day) };
+    });
+
+    // ---------- Daily Input calendar ----------
+    const weekdayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const firstDow = JPDATA ? new Date(JPDATA.YEAR, JPDATA.MONTH - 1, 1).getDay() : 0;
+    const daysInMonth = JPDATA ? new Date(JPDATA.YEAR, JPDATA.MONTH, 0).getDate() : 31;
+    let calendarCells = [];
+    for (let i = 0; i < firstDow; i++) calendarCells.push({ hasDay: false, style: 'border-radius:10px; min-height:58px;' });
+    for (let d = 1; d <= daysInMonth; d++) {
+      const e = entries.find(x => x.day === d);
+      const sm = e ? STATUS_META[e.status] : null;
+      const isToday = JPDATA && d === JPDATA.TODAY_DAY;
+      calendarCells.push({
+        hasDay: true, day: d,
+        statusLabel: sm ? sm.label : '',
+        statusColor: sm ? sm.color : '#52525b',
+        onClick: e ? () => this.openDay(d) : () => {},
+        style: `border-radius:10px; min-height:58px; padding:8px; cursor:${e ? 'pointer' : 'default'}; background:${sm ? sm.bg : 'rgba(255,255,255,0.02)'}; border:1px solid ${isToday ? '#d946ef' : 'rgba(255,255,255,0.05)'};`,
+      });
+    }
+
+    // ---------- Daily Input list ----------
+    const diq = (this.state.diSearch || '').trim().toLowerCase();
+    const diFiltered = entries.filter(e => {
+      if (this.state.diStatus !== 'all' && e.status !== this.state.diStatus) return false;
+      if (diq && !(e.topic + ' ' + e.category).toLowerCase().includes(diq)) return false;
+      return true;
+    });
+    const diRows = diFiltered.slice().reverse().slice(0, 40).map(e => {
+      const sm = STATUS_META[e.status];
+      return { day: e.day, topic: e.topic, category: e.category, statusLabel: sm.label, statusColor: sm.color, statusBg: sm.bg, onClick: () => this.openDay(e.day) };
+    });
+
+    // ---------- Day drawer ----------
+    let dayDrawer = null;
+    if (this.state.calDay && JPDATA) {
+      const e = this.entryFor(this.state.calDay);
+      if (e) {
+        const sm = STATUS_META[e.status];
+        const doneCount = STATUS_TO_STAGE_COUNT[e.status];
+        dayDrawer = {
+          day: e.day, topic: e.topic, category: e.category, tone: e.tone,
+          statusLabel: sm.label, statusColor: sm.color, statusBg: sm.bg,
+          platformChips: e.platforms.map(p => PLATFORM_META[p]),
+          canGenerate: e.status !== 'published',
+          genLabel: e.status === 'idea' ? 'Generate Script' : e.status === 'scripted' ? 'Record Voice & Edit' : e.status === 'recorded' || e.status === 'edited' ? 'Publish Now' : 'Done',
+          genIcon: e.status === 'idea' ? 'feather' : e.status === 'published' ? 'check' : 'sparkles',
+          stageProgress: PIPELINE_DEF.map((s, i) => ({
+            ...s,
+            color: i < doneCount ? '#22C55E' : '#52525b',
+            statusIcon: i < doneCount ? 'check-circle-2' : 'circle',
+          })),
+        };
+      }
+    }
+
+    // ---------- Content Pipeline page ----------
+    const pipelineStages = PIPELINE_DEF.map((def, i) => ({
+      ...def,
+      color: def.status === 'success' ? '#22C55E' : def.status === 'warning' ? '#F59E0B' : '#EF4444',
+      bg: def.status === 'success' ? 'rgba(34,197,94,0.12)' : def.status === 'warning' ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)',
+      border: def.status === 'success' ? 'rgba(34,197,94,0.35)' : def.status === 'warning' ? 'rgba(245,158,11,0.35)' : 'rgba(239,68,68,0.35)',
+      pulse: def.status !== 'success' ? 'animation:pulseDot 1.4s ease-in-out infinite;' : '',
+      hasNext: i < PIPELINE_DEF.length - 1,
+      onClick: () => this.openStage(def),
+    }));
+
+    const platformCards = [
+      { icon: 'clapperboard', label: 'Instagram Reels', color: '#e879f9', spec: '1080×1920 · 15–60s · trending audio matched automatically.' },
+      { icon: 'play-square', label: 'YouTube Shorts', color: '#f87171', spec: '1080×1920 · under 60s · optimized hook in first 2 seconds.' },
+      { icon: 'monitor-play', label: 'YouTube Long-form', color: '#fb923c', spec: '1920×1080 · 6–12 min · full breakdown with b-roll and chapters.' },
+      { icon: 'music-2', label: 'TikTok', color: '#67e8f9', spec: '1080×1920 · 15–60s · native captions and on-screen text.' },
+    ];
+
+    // ---------- Videos ----------
+    let vidAll = [];
+    entries.filter(e => ['edited','published'].includes(e.status)).forEach(e => {
+      e.platforms.forEach(pk => {
+        const pm = PLATFORM_META[pk];
+        vidAll.push({
+          id: e.day + '-' + pk, day: e.day, topic: e.topic, platform: pk,
+          platformLabel: pm.label, platformIcon: pm.icon,
+          status: e.status === 'published' ? 'Published' : 'Ready to Publish',
+          quality: (7.9 + seeded(e.day * 7 + pk.length, 12) / 10).toFixed(1),
+          duration: pk === 'long' ? (7 + seeded(e.day, 5)) + 'm ' + seeded(e.day + 1, 59) + 's' : (18 + seeded(e.day + pk.length, 40)) + 's',
+          thumbBg: `linear-gradient(135deg, rgba(217,70,239,0.25), rgba(99,102,241,0.2))`,
+        });
+      });
+    });
+    const vq = (this.state.vidSearch || '').trim().toLowerCase();
+    const vidFiltered = vidAll.filter(v => {
+      if (this.state.vidPlatform !== 'all' && v.platform !== this.state.vidPlatform) return false;
+      if (this.state.vidStatus !== 'all' && v.status !== this.state.vidStatus) return false;
+      if (vq && !v.topic.toLowerCase().includes(vq)) return false;
+      return true;
+    });
+    const vidItems = vidFiltered.slice(0, 30).map(v => ({
+      ...v,
+      statusBg: v.status === 'Published' ? 'rgba(34,197,94,0.14)' : 'rgba(245,158,11,0.14)',
+      statusColor: v.status === 'Published' ? '#22C55E' : '#fbbf24',
+    }));
+
+    // ---------- Settings ----------
+    const providerRows = [
+      { stage: 'Research', provider: 'DeepSeek V3.1 (Free)', tag: 'ACTIVE' },
+      { stage: 'Script', provider: 'DeepSeek V3 (Free)', tag: 'ACTIVE' },
+      { stage: 'Voice', provider: 'Kokoro TTS', tag: 'ACTIVE' },
+      { stage: 'QA', provider: 'Gemini 2.5 Flash Lite', tag: 'ACTIVE' },
+    ];
+
+    // ---------- New Input modal ----------
+    const upcoming = entries.filter(e => e.status === 'idea');
+    const newInputOptions = upcoming.map(e => ({ value: String(e.day), text: `Jul ${e.day} — ${e.topic}` }));
+
+    return {
+      navSections, viewIs, currentViewLabel: VIEW_LABELS[view],
+      profileMenuOpen, projectMenuOpen,
+      toggleProfileMenu: () => this.toggleHeaderMenu('profile'),
+      toggleProjectMenu: () => this.toggleHeaderMenu('project'),
+      closeHeaderMenu: () => this.setState({ headerMenu: null }),
+      goSettings, goDailyInput,
+      settingsEnv: this.state.settingsEnv,
+      setEnvDev: () => this.setState({ settingsEnv: 'Development' }),
+      setEnvProd: () => this.setState({ settingsEnv: 'Production' }),
+      envDevBg, envDevColor, envProdBg, envProdColor,
+      stopProp: (e) => e.stopPropagation(),
+
+      globalSearch: this.state.globalSearch,
+      onGlobalSearch: (e) => this.setState({ globalSearch: e.target.value }),
+      searchResults, searchOpen, searchHasResults: searchResults.length > 0, searchNoResults,
+      clearSearch: () => this.setState({ globalSearch: '' }),
+
+      selectedModel: this.state.selectedModel,
+      onModelChange: (e) => this.setState({ selectedModel: e.target.value }),
+
+      openNewInput: () => this.setState({ showNewInputModal: true, newInputDay: upcoming[0] ? upcoming[0].day : null, headerMenu: null }),
+      closeNewInput: () => this.setState({ showNewInputModal: false }),
+      showNewInputModal: this.state.showNewInputModal,
+      newInputOptions, newInputDay: this.state.newInputDay,
+      onNewInputDay: (e) => this.setState({ newInputDay: Number(e.target.value) }),
+      confirmNewInput: () => { const d = this.state.newInputDay; this.setState({ showNewInputModal: false, view: 'dailyinput' }); if (d) this.openDay(d); },
+
+      postsPublished, totalEntries, streakDays, platformBreakdown, videoStats, healthDots, recentEntries,
+      weeklyChartRef: (node) => this.initWeeklyChart(node),
+      categoryChartRef: (node) => this.initCategoryChart(node),
+
+      weekdayLabels, calendarCells,
+      diSearch: this.state.diSearch, onDiSearch: (e) => this.setState({ diSearch: e.target.value }),
+      diStatus: this.state.diStatus, onDiStatus: (e) => this.setState({ diStatus: e.target.value }),
+      diRows,
+
+      pipelineStages, platformCards,
+
+      vidSearch: this.state.vidSearch, onVidSearch: (e) => this.setState({ vidSearch: e.target.value }),
+      vidPlatform: this.state.vidPlatform, onVidPlatform: (e) => this.setState({ vidPlatform: e.target.value }),
+      vidStatus: this.state.vidStatus, onVidStatus: (e) => this.setState({ vidStatus: e.target.value }),
+      vidCount: vidFiltered.length, vidItems,
+
+      providerRows,
+
+      dayDrawer,
+      closeDayDrawer: () => this.closeDayDrawer(),
+      generateDay: () => this.generateDay(this.state.calDay),
+
+      stageDrawer: this.state.stageDrawer,
+      closeStage: () => this.closeStage(),
+    };
+  }
+
+  initWeeklyChart(node) {
+    if (!node || (this.weeklyChart && this.weeklyChart.canvas === node)) return;
+    if (this.weeklyChart) { this.weeklyChart.destroy(); this.weeklyChart = null; }
+    this.weeklyChart = new Chart(node, {
+      type: 'bar',
+      data: {
+        labels: ['W1', 'W2', 'W3', 'W4'],
+        datasets: [
+          { label: 'Reel', data: [3, 4, 3, 4], backgroundColor: '#e879f9' },
+          { label: 'Short', data: [3, 4, 3, 4], backgroundColor: '#f87171' },
+          { label: 'Long', data: [1, 2, 1, 2], backgroundColor: '#fb923c' },
+          { label: 'TikTok', data: [2, 2, 3, 2], backgroundColor: '#67e8f9' },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', boxWidth: 10, font: { size: 10 }, padding: 10 } } },
+        scales: {
+          x: { stacked: true, grid: { display: false }, ticks: { color: '#71717a', font: { size: 10 } } },
+          y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 10 } } },
+        },
+      },
+    });
+  }
+
+  initCategoryChart(node) {
+    if (!node || (this.categoryChart && this.categoryChart.canvas === node)) return;
+    if (this.categoryChart) { this.categoryChart.destroy(); this.categoryChart = null; }
+    this.categoryChart = new Chart(node, {
+      type: 'doughnut',
+      data: {
+        labels: ['AI Tools', 'Platform Update', 'Productivity', 'Strategy', 'Industry', 'Personal Brand', 'Social Growth'],
+        datasets: [{
+          data: [7, 5, 4, 3, 4, 3, 2],
+          backgroundColor: ['#d946ef', '#6366F1', '#22C55E', '#F59E0B', '#0ea5e9', '#f472b6', '#38bdf8'],
+          borderColor: '#111214', borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', boxWidth: 9, font: { size: 9.5 }, padding: 8 } } },
+      },
+    });
+  }
+}
+
+</script>
+</body>
+</html>

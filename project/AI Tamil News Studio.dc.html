@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="tn-favicon-32.png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulseDot { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+    * { box-sizing:border-box; font-family:'Inter',sans-serif; }
+    body { margin:0; background:#09090B; }
+    ::-webkit-scrollbar { width:8px; height:8px; }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:8px; }
+    a { color:#7dd3fc; }
+    a:hover { color:#bae6fd; }
+  </style>
+</helmet>
+<div style="display:flex; height:100vh; background:#09090B; color:#e4e4e7; overflow:hidden;">
+  <aside style="width:240px; flex-shrink:0; background:rgba(17,24,39,0.55); backdrop-filter:blur(20px); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column;">
+    <div style="padding:20px 20px 16px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div style="width:34px; height:34px; border-radius:9px; overflow:hidden; flex-shrink:0;"><img src="tn-logo-mark.png" alt="AI Tamil News Studio" style="width:100%; height:100%; object-fit:cover;" /></div>
+      <div style="min-width:0;">
+        <div style="font-weight:700; font-size:13.5px; color:#f4f4f5; white-space:nowrap;">Tamil News AI</div>
+        <div style="font-size:10.5px; color:#71717a; white-space:nowrap;">News Video Studio</div>
+      </div>
+    </div>
+    <nav style="flex:1; overflow-y:auto; padding:14px 12px; display:flex; flex-direction:column; gap:2px;">
+      <sc-for list="{{ navSections }}" as="section" hint-placeholder-count="3">
+        <div style="margin:14px 0 6px 0;">
+          <div style="font-size:10px; font-weight:700; color:#52525b; text-transform:uppercase; letter-spacing:0.08em; padding:0 10px 6px 10px;">{{ section.label }}</div>
+          <sc-for list="{{ section.items }}" as="item" hint-placeholder-count="3">
+            <div onClick="{{ item.onClick }}" style="{{ item.style }}">
+              <i data-lucide="{{ item.icon }}" style="width:16px; height:16px; flex-shrink:0;"></i>
+              <span style="font-size:13px; font-weight:500;">{{ item.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="padding:14px; border-top:1px solid rgba(255,255,255,0.06); position:relative;">
+      <div onClick="{{ toggleProfileMenu }}" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; background:rgba(255,255,255,0.03); cursor:pointer;">
+        <div style="width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#0ea5e9,#6366F1); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:white; flex-shrink:0;">TN</div>
+        <div style="min-width:0; flex:1;">
+          <div style="font-size:12px; font-weight:600; color:#e4e4e7; white-space:nowrap;">Dev Profile</div>
+          <div style="font-size:10.5px; color:#22C55E; display:flex; align-items:center; gap:4px;"><span style="width:5px; height:5px; border-radius:50%; background:#22C55E; display:inline-block;"></span>Free Tier Active</div>
+        </div>
+        <i data-lucide="chevrons-up-down" style="width:14px; height:14px; color:#71717a; flex-shrink:0;"></i>
+      </div>
+      <sc-if value="{{ profileMenuOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed; inset:0; z-index:29;" onClick="{{ closeHeaderMenu }}"></div>
+        <div onClick="{{ stopProp }}" style="position:absolute; bottom:78px; left:14px; right:14px; background:#18181b; border:1px solid rgba(255,255,255,0.09); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); z-index:30; padding:12px; display:flex; flex-direction:column; gap:10px;">
+          <div>
+            <div style="font-size:10px; font-weight:700; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Environment</div>
+            <div style="display:flex; gap:6px;">
+              <div onClick="{{ setEnvDev }}" style="flex:1; text-align:center; padding:6px; border-radius:7px; font-size:11.5px; font-weight:600; cursor:pointer; background:{{ envDevBg }}; color:{{ envDevColor }};">Development</div>
+              <div onClick="{{ setEnvProd }}" style="flex:1; text-align:center; padding:6px; border-radius:7px; font-size:11.5px; font-weight:600; cursor:pointer; background:{{ envProdBg }}; color:{{ envProdColor }};">Production</div>
+            </div>
+          </div>
+          <div style="height:1px; background:rgba(255,255,255,0.07);"></div>
+          <a href="Studio Home.dc.html" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer; text-decoration:none;"><i data-lucide="layout-grid" style="width:14px; height:14px;"></i> All Projects</a>
+          <div onClick="{{ goSettings }}" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer;"><i data-lucide="settings" style="width:14px; height:14px;"></i> Settings &amp; Providers</div>
+        </div>
+      </sc-if>
+    </div>
+  </aside>
+
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; overflow:hidden;">
+    <header style="height:64px; flex-shrink:0; display:flex; align-items:center; gap:16px; padding:0 24px; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(9,9,11,0.7); backdrop-filter:blur(16px); position:sticky; top:0; z-index:20;">
+      <div style="position:relative; flex-shrink:1; min-width:0;">
+        <div onClick="{{ toggleProjectMenu }}" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#a1a1aa; cursor:pointer; padding:6px 8px; margin:-6px -8px; border-radius:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <span style="color:#71717a;">Project</span><i data-lucide="chevron-right" style="width:13px; height:13px; color:#3f3f46;"></i>
+          <span style="color:#f4f4f5; font-weight:600;">{{ currentViewLabel }}</span><i data-lucide="chevron-down" style="width:13px; height:13px; color:#52525b; margin-left:2px;"></i>
+        </div>
+        <sc-if value="{{ projectMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:fixed; inset:0; z-index:29;" onClick="{{ closeHeaderMenu }}"></div>
+          <div onClick="{{ stopProp }}" style="position:absolute; top:38px; left:0; width:260px; background:#18181b; border:1px solid rgba(255,255,255,0.09); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); z-index:30; padding:12px; display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:13px; font-weight:700; color:#f4f4f5;">AI Tamil News Studio</div>
+            <div style="font-size:11.5px; color:#71717a;">Daily Tamil news videos · Free tier</div>
+            <div style="height:1px; background:rgba(255,255,255,0.07); margin:2px 0;"></div>
+            <a href="Studio Home.dc.html" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer; text-decoration:none;"><i data-lucide="layout-grid" style="width:14px; height:14px;"></i> All Projects</a>
+          </div>
+        </sc-if>
+      </div>
+      <div style="flex:1 1 100px; min-width:60px; max-width:420px; position:relative; margin-left:12px;">
+        <i data-lucide="search" style="width:15px; height:15px; color:#52525b; position:absolute; left:11px; top:50%; transform:translateY(-50%);"></i>
+        <input value="{{ globalSearch }}" onChange="{{ onGlobalSearch }}" placeholder="Search articles, videos..." style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:8px 12px 8px 34px; font-size:12.5px; color:#e4e4e7; outline:none;" />
+        <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:fixed; inset:0; z-index:29;" onClick="{{ clearSearch }}"></div>
+          <div onClick="{{ stopProp }}" style="position:absolute; top:40px; left:0; width:340px; max-width:80vw; background:#18181b; border:1px solid rgba(255,255,255,0.09); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); z-index:30; padding:6px; max-height:340px; overflow-y:auto;">
+            <sc-if value="{{ searchHasResults }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ searchResults }}" as="r" hint-placeholder-count="3">
+                <div onClick="{{ r.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; cursor:pointer;">
+                  <span style="font-size:11px; font-weight:700; color:#7dd3fc; background:rgba(14,165,233,0.15); border-radius:6px; padding:2px 6px; flex-shrink:0; white-space:nowrap;">#{{ r.id }}</span>
+                  <div style="min-width:0; flex:1;"><div style="font-size:12.5px; color:#e4e4e7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.headline }}</div><div style="font-size:10.5px; color:#71717a;">{{ r.source }}</div></div>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ searchNoResults }}" hint-placeholder-val="{{ false }}"><div style="padding:16px; text-align:center; font-size:12px; color:#71717a;">No matches.</div></sc-if>
+          </div>
+        </sc-if>
+      </div>
+      <div style="flex:1; min-width:0;"></div>
+      <div style="position:relative; flex-shrink:0;">
+        <select value="{{ selectedModel }}" onChange="{{ onModelChange }}" style="appearance:none; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; font-weight:500; padding:7px 26px 7px 10px; border-radius:8px; outline:none; cursor:pointer; max-width:160px;">
+          <option>DeepSeek V3.1 (Free)</option><option>Qwen 3 (Free)</option><option>Gemini 2.5 Flash Lite (Free)</option><option>Claude Opus 4.6</option>
+        </select>
+      </div>
+      <button style="width:36px; height:36px; flex-shrink:0; border-radius:9px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;">
+        <i data-lucide="bell" style="width:16px; height:16px; color:#a1a1aa;"></i><span style="position:absolute; top:7px; right:8px; width:6px; height:6px; border-radius:50%; background:#EF4444;"></span>
+      </button>
+      <button onClick="{{ runFetch }}" style="display:flex; align-items:center; gap:6px; padding:8px 16px; flex-shrink:0; white-space:nowrap; border-radius:9px; border:none; background:linear-gradient(135deg,#0ea5e9,#6366F1); color:white; font-size:12.5px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(14,165,233,0.3);">
+        <i data-lucide="{{ fetchIcon }}" style="width:14px; height:14px;"></i> {{ fetchLabel }}
+      </button>
+    </header>
+
+    <main style="flex:1; overflow-y:auto; padding:28px 32px 60px 32px;">
+      <sc-if value="{{ viewIs.dashboard }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex; flex-direction:column; gap:22px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Studio Overview</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Live Tamil news, turned into short AI videos — automatically, every day.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:18px;">
+            <div style="border-radius:16px; padding:22px; background:linear-gradient(135deg, rgba(14,165,233,0.16), rgba(99,102,241,0.08)); border:1px solid rgba(14,165,233,0.25); position:relative; overflow:hidden;">
+              <div style="position:absolute; top:-40px; right:-40px; width:160px; height:160px; border-radius:50%; background:radial-gradient(circle, rgba(14,165,233,0.22), transparent 70%);"></div>
+              <div style="font-size:12px; font-weight:600; color:#7dd3fc; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Today</div>
+              <div style="display:flex; align-items:baseline; gap:8px;"><span style="font-size:38px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">{{ articlesToday }}</span><span style="font-size:13px; color:#bae6fd;">articles ingested</span></div>
+              <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:16px;">
+                <div><div style="font-size:18px; font-weight:700; color:#f4f4f5;">{{ sourcesLive }}</div><div style="font-size:11px; color:#a1a1aa; white-space:nowrap;">Sources live</div></div>
+                <div><div style="font-size:18px; font-weight:700; color:#f4f4f5;">{{ totalArticles }}</div><div style="font-size:11px; color:#a1a1aa; white-space:nowrap;">This month</div></div>
+                <div><div style="font-size:18px; font-weight:700; color:#f4f4f5;">6</div><div style="font-size:11px; color:#a1a1aa; white-space:nowrap;">Categories</div></div>
+              </div>
+            </div>
+            <div style="border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(12px);">
+              <div style="font-size:12px; font-weight:600; color:#5eead4; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Videos Published</div>
+              <div style="display:flex; align-items:baseline; gap:8px;"><span style="font-size:38px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">{{ videosPublished }}</span><span style="font-size:12.5px; color:#22C55E; font-weight:600;">this month</span></div>
+              <div style="margin-top:16px; height:6px; border-radius:4px; background:rgba(255,255,255,0.06); overflow:hidden;"><div style="width:{{ publishPct }}%; height:100%; background:linear-gradient(90deg,#0ea5e9,#6366F1); border-radius:4px;"></div></div>
+              <div style="margin-top:8px; font-size:11.5px; color:#71717a;">{{ publishPct }}% of ingested articles published</div>
+            </div>
+            <div style="border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(12px);">
+              <div style="font-size:12px; font-weight:600; color:#fbbf24; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Pipeline Health</div>
+              <div style="display:flex; align-items:baseline; gap:8px;"><span style="font-size:38px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">96.8%</span><span style="font-size:12.5px; color:#a1a1aa;">on-time</span></div>
+              <div style="display:flex; gap:6px; margin-top:16px;"><sc-for list="{{ healthDots }}" as="dot" hint-placeholder-count="8"><span style="{{ dot.style }}"></span></sc-for></div>
+              <div style="margin-top:8px; font-size:11.5px; color:#71717a;">8 pipeline stages monitored</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Content Stats</div>
+            <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:14px;">
+              <sc-for list="{{ videoStats }}" as="s" hint-placeholder-count="6">
+                <div style="border-radius:14px; padding:16px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; gap:10px;">
+                  <div style="width:32px; height:32px; border-radius:9px; background:{{ s.iconBg }}; display:flex; align-items:center; justify-content:center;"><i data-lucide="{{ s.icon }}" style="width:15px; height:15px; color:{{ s.iconColor }};"></i></div>
+                  <div><div style="font-size:20px; font-weight:800; color:#fafafa;">{{ s.value }}</div><div style="font-size:11px; color:#71717a;">{{ s.label }}</div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:18px;">
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Articles per Source</div>
+              <div style="height:220px;"><canvas ref="{{ sourceChartRef }}"></canvas></div>
+            </div>
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Category Breakdown</div>
+              <div style="height:220px;"><canvas ref="{{ categoryChartRef }}"></canvas></div>
+            </div>
+          </div>
+          <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8;">Recently Ingested Articles</div>
+              <div onClick="{{ goSources }}" style="font-size:12px; color:#7dd3fc; cursor:pointer; font-weight:600;">View sources →</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <sc-for list="{{ recentArticles }}" as="a" hint-placeholder-count="5">
+                <div style="display:flex; align-items:center; gap:14px; padding:11px 12px; background:rgba(255,255,255,0.025); border-radius:10px;">
+                  <span style="font-size:11px; font-weight:700; color:#a1a1aa; width:80px; flex-shrink:0; white-space:nowrap;">{{ a.source }}</span>
+                  <span style="font-size:12.5px; color:#e4e4e7; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ a.headline }}</span>
+                  <span style="font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:6px; background:{{ a.statusBg }}; color:{{ a.statusColor }}; flex-shrink:0;">{{ a.statusLabel }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.projects }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:22px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Projects</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Every AI content factory running under this workspace.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px;">
+            <a href="AI Thirukkural Studio.dc.html" style="text-decoration:none; border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); display:block;">
+              <div style="width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,#6366F1,#14B8A6); display:flex; align-items:center; justify-content:center; margin-bottom:14px; font-weight:800; font-size:13px; color:white;">குறள்</div>
+              <div style="font-size:16px; font-weight:800; color:#fafafa; margin-bottom:4px;">AI Thirukkural Studio</div>
+              <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:16px; line-height:1.5;">Converts all 1,330 Thirukkurals into educational Tamil videos.</div>
+              <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#7dd3fc;">Open project <i data-lucide="arrow-right" style="width:13px; height:13px;"></i></div>
+            </a>
+            <a href="JP Personal AI Studio.dc.html" style="text-decoration:none; border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); display:block;">
+              <div style="width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,#d946ef,#6366F1); display:flex; align-items:center; justify-content:center; margin-bottom:14px;"><i data-lucide="sparkles" style="width:20px; height:20px; color:white;"></i></div>
+              <div style="font-size:16px; font-weight:800; color:#fafafa; margin-bottom:4px;">JP Personal AI Studio</div>
+              <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:16px; line-height:1.5;">Daily AI &amp; digital-marketing content for Instagram, YouTube and TikTok.</div>
+              <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#7dd3fc;">Open project <i data-lucide="arrow-right" style="width:13px; height:13px;"></i></div>
+            </a>
+            <div style="border-radius:16px; padding:22px; background:linear-gradient(135deg, rgba(14,165,233,0.16), rgba(99,102,241,0.08)); border:1px solid rgba(14,165,233,0.3); position:relative;">
+              <div style="position:absolute; top:10px; right:10px; font-size:10px; font-weight:700; color:#86efac; background:rgba(34,197,94,0.15); padding:3px 8px; border-radius:6px;">ACTIVE</div>
+              <div style="width:42px; height:42px; border-radius:11px; overflow:hidden; margin-bottom:14px;"><img src="tn-logo-mark.png" style="width:100%; height:100%; object-fit:cover;" /></div>
+              <div style="font-size:16px; font-weight:800; color:#fafafa; margin-bottom:4px;">AI Tamil News Studio</div>
+              <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:16px; line-height:1.5;">Pulls daily stories from Tamil news sites and turns them into short AI news videos.</div>
+              <div style="display:flex; gap:14px; font-size:11.5px; color:#71717a;"><span><b style="color:#e4e4e7;">{{ articlesToday }}</b> today</span><span><b style="color:#e4e4e7;">{{ videosPublished }}</b> published</span></div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.sources }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">News Sources</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Tamil news sites the pipeline monitors for fresh stories.</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <sc-for list="{{ sourceRows }}" as="s" hint-placeholder-count="6">
+              <div style="display:flex; align-items:center; gap:16px; padding:16px 18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); border-radius:14px;">
+                <div style="width:40px; height:40px; border-radius:10px; background:rgba(14,165,233,0.14); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i data-lucide="rss" style="width:18px; height:18px; color:#7dd3fc;"></i></div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13.5px; font-weight:700; color:#f4f4f5;">{{ s.name }}</div>
+                  <div style="font-size:11.5px; color:#71717a;">{{ s.url }}</div>
+                </div>
+                <div style="text-align:right;"><div style="font-size:15px; font-weight:700; color:#f4f4f5;">{{ s.perDay }}</div><div style="font-size:10.5px; color:#71717a;">articles/day</div></div>
+                <span style="font-size:10.5px; font-weight:700; padding:5px 11px; border-radius:7px; background:{{ s.statusBg }}; color:{{ s.statusColor }}; flex-shrink:0; width:64px; text-align:center;">{{ s.statusLabel }}</span>
+                <div onClick="{{ s.onToggle }}" style="width:40px; height:22px; border-radius:12px; background:{{ s.toggleBg }}; position:relative; cursor:pointer; flex-shrink:0;">
+                  <div style="width:16px; height:16px; border-radius:50%; background:white; position:absolute; top:3px; left:{{ s.toggleLeft }}; transition:left 0.15s;"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.workflow }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Workflow</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">From a fetched headline to a published Tamil news video.</p>
+          </div>
+          <div style="border-radius:16px; padding:28px 20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); overflow-x:auto;">
+            <div style="display:flex; align-items:center; min-width:max-content;">
+              <sc-for list="{{ pipelineStages }}" as="s" hint-placeholder-count="8">
+                <div onClick="{{ s.onClick }}" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; width:112px;">
+                  <div style="width:52px; height:52px; border-radius:14px; background:{{ s.bg }}; border:1.5px solid {{ s.border }}; display:flex; align-items:center; justify-content:center; {{ s.pulse }}">
+                    <i data-lucide="{{ s.icon }}" style="width:22px; height:22px; color:{{ s.color }};"></i>
+                  </div>
+                  <div style="font-size:11.5px; font-weight:600; color:#d4d4d8; text-align:center;">{{ s.label }}</div>
+                </div>
+                <sc-if value="{{ s.hasNext }}" hint-placeholder-val="{{ true }}">
+                  <div style="flex:1; height:2px; background:linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); margin:0 -6px 26px -6px; min-width:16px;"></div>
+                </sc-if>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.videos }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Videos</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Every AI-generated Tamil news video, ready or live.</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="flex:1; min-width:220px; position:relative;">
+              <i data-lucide="search" style="width:14px; height:14px; color:#52525b; position:absolute; left:11px; top:50%; transform:translateY(-50%);"></i>
+              <input value="{{ vidSearch }}" onChange="{{ onVidSearch }}" placeholder="Search by headline..." style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#e4e4e7; font-size:12.5px; padding:9px 12px 9px 34px; border-radius:9px; outline:none;" />
+            </div>
+            <select value="{{ vidStatus }}" onChange="{{ onVidStatus }}" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; padding:9px 12px; border-radius:9px; outline:none;">
+              <option value="all">All Statuses</option><option value="edited">Edited</option><option value="published">Published</option>
+            </select>
+          </div>
+          <div style="font-size:12px; color:#71717a;">Showing {{ vidCount }} videos</div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:16px;">
+            <sc-for list="{{ vidItems }}" as="v" hint-placeholder-count="8">
+              <div style="border-radius:14px; overflow:hidden; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+                <div style="height:130px; background:linear-gradient(135deg, rgba(14,165,233,0.25), rgba(99,102,241,0.2)); display:flex; align-items:center; justify-content:center; position:relative;">
+                  <i data-lucide="newspaper" style="width:26px; height:26px; color:rgba(255,255,255,0.85);"></i>
+                  <span style="position:absolute; top:8px; left:8px; font-size:9.5px; font-weight:700; padding:3px 7px; border-radius:6px; background:rgba(0,0,0,0.45); color:white;">{{ v.category }}</span>
+                  <span style="position:absolute; bottom:8px; right:8px; font-size:10px; font-weight:600; color:white; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:5px;">{{ v.duration }}</span>
+                </div>
+                <div style="padding:14px;">
+                  <div style="font-size:12.5px; font-weight:600; color:#e4e4e7; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ v.headline }}</div>
+                  <div style="font-size:10.5px; color:#71717a; margin-bottom:8px;">{{ v.source }}</div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                    <span style="font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:{{ v.statusBg }}; color:{{ v.statusColor }};">{{ v.statusLabel }}</span>
+                    <span style="font-size:11px; color:#fbbf24; display:flex; align-items:center; gap:3px;"><i data-lucide="star" style="width:11px; height:11px;"></i>{{ v.quality }}</span>
+                  </div>
+                  <div style="display:flex; gap:6px;">
+                    <button style="flex:1; padding:6px; border-radius:7px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:#a1a1aa; font-size:11px; cursor:pointer;">Preview</button>
+                    <button style="flex:1; padding:6px; border-radius:7px; border:none; background:rgba(14,165,233,0.15); color:#7dd3fc; font-size:11px; font-weight:600; cursor:pointer;">Publish</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.settings }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease; max-width:720px;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Settings</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Providers, environment, and API keys.</p>
+          </div>
+          <div style="border-radius:14px; padding:18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:12.5px; font-weight:700; color:#d4d4d8; margin-bottom:12px;">Active Environment</div>
+            <div style="display:flex; gap:8px;">
+              <div onClick="{{ setEnvDev }}" style="padding:8px 16px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:600; background:{{ envDevBg }}; color:{{ envDevColor }};">Development</div>
+              <div onClick="{{ setEnvProd }}" style="padding:8px 16px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:600; background:{{ envProdBg }}; color:{{ envProdColor }};">Production</div>
+            </div>
+          </div>
+          <div style="border-radius:14px; padding:18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:12.5px; font-weight:700; color:#d4d4d8; margin-bottom:12px;">Providers</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <sc-for list="{{ providerRows }}" as="p" hint-placeholder-count="4">
+                <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:rgba(255,255,255,0.025); border-radius:9px;">
+                  <span style="font-size:12px; color:#a1a1aa; width:110px;">{{ p.stage }}</span>
+                  <span style="font-size:12.5px; color:#f4f4f5; font-weight:600; flex:1;">{{ p.provider }}</span>
+                  <span style="font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:rgba(34,197,94,0.12); color:#22C55E;">{{ p.tag }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+</div>
+
+<sc-if value="{{ stageDrawer }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeStage }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px); z-index:40; display:flex; justify-content:flex-end;">
+    <div onClick="{{ stopProp }}" style="width:400px; height:100%; background:#111214; border-left:1px solid rgba(255,255,255,0.08); padding:26px; overflow-y:auto; animation:fadeUp 0.25s ease;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:42px; height:42px; border-radius:11px; background:{{ stageDrawer.bg }}; display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="{{ stageDrawer.icon }}" style="width:19px; height:19px; color:{{ stageDrawer.color }};"></i>
+          </div>
+          <div>
+            <div style="font-size:15px; font-weight:700; color:#fafafa;">{{ stageDrawer.label }}</div>
+            <div style="font-size:11.5px; color:{{ stageDrawer.color }}; font-weight:600;">Healthy</div>
+          </div>
+        </div>
+        <button onClick="{{ closeStage }}" style="width:28px; height:28px; border-radius:8px; background:rgba(255,255,255,0.05); border:none; color:#a1a1aa; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i data-lucide="x" style="width:14px; height:14px;"></i></button>
+      </div>
+      <div style="font-size:12.5px; color:#a1a1aa; line-height:1.6; margin-bottom:18px;">{{ stageDrawer.description }}</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Avg Time</div><div style="font-size:16px; font-weight:700; color:#f4f4f5;">{{ stageDrawer.avgTime }}</div></div>
+        <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Provider</div><div style="font-size:16px; font-weight:700; color:#f4f4f5;">{{ stageDrawer.provider }}</div></div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = { view: 'dashboard', headerMenu: null, globalSearch: '', selectedModel: 'DeepSeek V3.1 (Free)', settingsEnv: 'Development', fetching: false, stageDrawer: null, sourceOverrides: {}, vidSearch: '', vidStatus: 'all' };
+  componentDidMount() { if (window.lucide) window.lucide.createIcons(); if (!TNDATA) import('./tn-data.js').then(m => { TNDATA = m; this.forceUpdate(); }); }
+  componentDidUpdate() { if (window.lucide) window.lucide.createIcons(); }
+  setView(key) { this.setState({ view: key, headerMenu: null }); }
+  toggleHeaderMenu(name) { this.setState(s => ({ headerMenu: s.headerMenu === name ? null : name })); }
+  runFetch() { this.setState({ fetching: true }); setTimeout(() => this.setState({ fetching: false }), 900); }
+  openStage(def) { this.setState({ stageDrawer: { ...def, avgTime: (Math.random()*2+0.6).toFixed(1)+'s' } }); }
+  closeStage() { this.setState({ stageDrawer: null }); }
+  toggleSource(key) {
+    this.setState(s => {
+      const cur = s.sourceOverrides[key];
+      const base = TNDATA ? TNDATA.SOURCES.find(x => x.key === key) : null;
+      const curStatus = cur ? cur.status : (base ? base.status : 'live');
+      return { sourceOverrides: { ...s.sourceOverrides, [key]: { status: curStatus === 'live' ? 'paused' : 'live' } } };
+    });
+  }
+  renderVals() {
+    const view = this.state.view;
+    const viewIs = {};
+    ['projects','dashboard','sources','workflow','videos','settings'].forEach(k => { viewIs[k] = view === k; });
+    const VIEW_LABELS = { projects: 'Projects', dashboard: 'Dashboard', sources: 'News Sources', workflow: 'Workflow', videos: 'Videos', settings: 'Settings' };
+    const navSections = [
+      { label: 'Overview', items: [{ key: 'projects', label: 'Projects', icon: 'layout-grid' }, { key: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' }] },
+      { label: 'Content', items: [{ key: 'sources', label: 'News Sources', icon: 'rss' }, { key: 'workflow', label: 'Workflow', icon: 'git-branch' }, { key: 'videos', label: 'Videos', icon: 'video' }] },
+      { label: 'System', items: [{ key: 'settings', label: 'Settings', icon: 'settings' }] },
+    ].map(sec => ({
+      label: sec.label, items: sec.items.map(it => ({ ...it, onClick: () => this.setView(it.key), style: `display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; color:${view===it.key?'#f4f4f5':'#a1a1aa'}; background:${view===it.key?'rgba(14,165,233,0.14)':'transparent'};` })),
+    }));
+    const healthDots = Array.from({ length: 8 }, (_, i) => ({ style: `width:16px; height:6px; border-radius:3px; background:${i<7?'#22C55E':'#F59E0B'};` }));
+    let articlesToday = 4, sourcesLive = 5, totalArticles = 24, videosPublished = 10, publishPct = 42, recentArticles = [], videoStats = [
+      { label: 'Articles Ingested', value: '24', icon: 'rss', iconColor: '#7dd3fc', iconBg: 'rgba(14,165,233,0.15)' },
+      { label: 'Videos Published', value: '10', icon: 'upload-cloud', iconColor: '#86efac', iconBg: 'rgba(34,197,94,0.15)' },
+      { label: 'Avg Quality', value: '8.5/10', icon: 'star', iconColor: '#fcd34d', iconBg: 'rgba(245,158,11,0.15)' },
+      { label: 'Avg Turnaround', value: '48m', icon: 'timer', iconColor: '#93c5fd', iconBg: 'rgba(99,102,241,0.15)' },
+      { label: 'Avg Cost / Video', value: '$0.11', icon: 'circle-dollar-sign', iconColor: '#fca5a5', iconBg: 'rgba(239,68,68,0.15)' },
+      { label: 'Sources Live', value: '5', icon: 'radio', iconColor: '#c4b5fd', iconBg: 'rgba(14,165,233,0.15)' },
+    ];
+    if (TNDATA) {
+      videosPublished = TNDATA.ARTICLES.filter(a => a.status === 'published').length;
+      publishPct = Math.round(videosPublished / TNDATA.ARTICLES.length * 100);
+      recentArticles = TNDATA.ARTICLES.slice(-5).reverse().map(a => {
+        const sm = STATUS_META[a.status];
+        return { source: a.source, headline: a.headline, statusLabel: sm.label, statusColor: sm.color, statusBg: sm.bg };
+      });
+      videoStats[0].value = String(TNDATA.ARTICLES.length);
+      videoStats[1].value = String(videosPublished);
+      videoStats[5].value = String(TNDATA.SOURCES.filter(s=>s.status==='live').length);
+    }
+    // ---------- Sources ----------
+    const sourceRows = TNDATA ? TNDATA.SOURCES.map(s => {
+      const ov = this.state.sourceOverrides[s.key];
+      const status = ov ? ov.status : s.status;
+      const live = status === 'live';
+      return {
+        ...s, statusLabel: live ? 'Live' : 'Paused',
+        statusColor: live ? '#22C55E' : '#71717a', statusBg: live ? 'rgba(34,197,94,0.14)' : 'rgba(113,113,122,0.14)',
+        toggleBg: live ? '#0ea5e9' : 'rgba(255,255,255,0.1)', toggleLeft: live ? '21px' : '3px',
+        onToggle: () => this.toggleSource(s.key),
+      };
+    }) : [];
+
+    // ---------- Workflow ----------
+    const pipelineStages = PIPELINE_DEF.map((def, i) => ({
+      ...def,
+      color: def.status === 'success' ? '#22C55E' : def.status === 'warning' ? '#F59E0B' : '#EF4444',
+      bg: def.status === 'success' ? 'rgba(34,197,94,0.12)' : def.status === 'warning' ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)',
+      border: def.status === 'success' ? 'rgba(34,197,94,0.35)' : def.status === 'warning' ? 'rgba(245,158,11,0.35)' : 'rgba(239,68,68,0.35)',
+      pulse: def.status !== 'success' ? 'animation:pulseDot 1.4s ease-in-out infinite;' : '',
+      hasNext: i < PIPELINE_DEF.length - 1,
+      onClick: () => this.openStage(def),
+    }));
+
+    // ---------- Videos ----------
+    let vidAll = TNDATA ? TNDATA.ARTICLES.filter(a => ['edited', 'published'].includes(a.status)).map(a => ({
+      id: a.id, headline: a.headline, source: a.source, category: a.category,
+      status: a.status === 'published' ? 'published' : 'edited',
+      statusLabel: a.status === 'published' ? 'Published' : 'Edited',
+      quality: (7.6 + (a.id * 13 % 12) / 10).toFixed(1),
+      duration: (38 + (a.id * 7 % 40)) + 's',
+    })) : [];
+    const vq = (this.state.vidSearch || '').trim().toLowerCase();
+    const vidFiltered = vidAll.filter(v => {
+      if (this.state.vidStatus !== 'all' && v.status !== this.state.vidStatus) return false;
+      if (vq && !v.headline.toLowerCase().includes(vq)) return false;
+      return true;
+    });
+    const vidItems = vidFiltered.map(v => ({ ...v, statusBg: v.status === 'published' ? 'rgba(34,197,94,0.14)' : 'rgba(14,165,233,0.14)', statusColor: v.status === 'published' ? '#22C55E' : '#38bdf8' }));
+
+    // ---------- Settings ----------
+    const providerRows = [
+      { stage: 'Fetch', provider: 'RSS + Web Scrape', tag: 'ACTIVE' },
+      { stage: 'Script (Tamil)', provider: 'DeepSeek V3 (Free)', tag: 'ACTIVE' },
+      { stage: 'Voice (Tamil)', provider: 'Kokoro TTS', tag: 'ACTIVE' },
+      { stage: 'QA', provider: 'Gemini 2.5 Flash Lite', tag: 'ACTIVE' },
+    ];
+
+    // ---------- Global search ----------
+    const gq = (this.state.globalSearch || '').trim().toLowerCase();
+    let searchResults = [];
+    if (gq && TNDATA) {
+      searchResults = TNDATA.ARTICLES.filter(a => (a.headline + ' ' + a.source).toLowerCase().includes(gq)).slice(0, 6)
+        .map(a => ({ id: a.id, headline: a.headline, source: a.source, onClick: () => { this.setState({ globalSearch: '', view: 'videos' }); } }));
+    }
+    const searchOpen = gq.length > 0;
+
+    return {
+      navSections, viewIs, currentViewLabel: VIEW_LABELS[view],
+      profileMenuOpen: this.state.headerMenu === 'profile', projectMenuOpen: this.state.headerMenu === 'project',
+      toggleProfileMenu: () => this.toggleHeaderMenu('profile'), toggleProjectMenu: () => this.toggleHeaderMenu('project'),
+      closeHeaderMenu: () => this.setState({ headerMenu: null }),
+      goSettings: () => this.setState({ view: 'settings' }), goSources: () => this.setState({ view: 'sources' }),
+      sourceRows, pipelineStages, vidItems, vidCount: vidFiltered.length,
+      vidSearch: this.state.vidSearch, onVidSearch: (e) => this.setState({ vidSearch: e.target.value }),
+      vidStatus: this.state.vidStatus, onVidStatus: (e) => this.setState({ vidStatus: e.target.value }),
+      providerRows,
+      stageDrawer: this.state.stageDrawer, closeStage: () => this.closeStage(),
+      searchResults, searchOpen, searchHasResults: searchResults.length > 0, searchNoResults: searchOpen && searchResults.length === 0,
+      settingsEnv: this.state.settingsEnv,
+      setEnvDev: () => this.setState({ settingsEnv: 'Development' }), setEnvProd: () => this.setState({ settingsEnv: 'Production' }),
+      envDevBg: this.state.settingsEnv==='Development'?'rgba(14,165,233,0.18)':'transparent', envDevColor: this.state.settingsEnv==='Development'?'#7dd3fc':'#71717a',
+      envProdBg: this.state.settingsEnv==='Production'?'rgba(14,165,233,0.18)':'transparent', envProdColor: this.state.settingsEnv==='Production'?'#7dd3fc':'#71717a',
+      stopProp: (e) => e.stopPropagation(),
+      globalSearch: this.state.globalSearch, onGlobalSearch: (e) => this.setState({ globalSearch: e.target.value }),
+      clearSearch: () => this.setState({ globalSearch: '' }),
+      selectedModel: this.state.selectedModel, onModelChange: (e) => this.setState({ selectedModel: e.target.value }),
+      runFetch: () => this.runFetch(), fetching: this.state.fetching,
+      fetchLabel: this.state.fetching ? 'Fetching…' : 'Fetch Now', fetchIcon: this.state.fetching ? 'loader-circle' : 'refresh-cw',
+      articlesToday, sourcesLive, totalArticles, videosPublished, publishPct, healthDots, videoStats, recentArticles,
+      sourceChartRef: (node) => this.initSourceChart(node),
+      categoryChartRef: (node) => this.initCategoryChart(node),
+    };
+  }
+  initSourceChart(node) {
+    if (!node || (this.sourceChart && this.sourceChart.canvas === node)) return;
+    if (this.sourceChart) { this.sourceChart.destroy(); this.sourceChart = null; }
+    const labels = TNDATA ? TNDATA.SOURCES.filter(s=>s.status==='live').map(s=>s.name) : ['Dinamalar','Dinakaran','Vikatan'];
+    const data = TNDATA ? TNDATA.SOURCES.filter(s=>s.status==='live').map(s=>s.perDay) : [42,35,28];
+    this.sourceChart = new Chart(node, { type: 'bar', data: { labels, datasets: [{ data, backgroundColor: '#0ea5e9', borderRadius: 5, maxBarThickness: 26 }] },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } },
+        scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 10 } } }, y: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 10 } } } } } });
+  }
+  initCategoryChart(node) {
+    if (!node || (this.categoryChart && this.categoryChart.canvas === node)) return;
+    if (this.categoryChart) { this.categoryChart.destroy(); this.categoryChart = null; }
+    this.categoryChart = new Chart(node, { type: 'doughnut', data: { labels: ['State','Politics','Business','Culture','Education','Other'], datasets: [{ data: [6,4,4,3,3,4], backgroundColor: ['#0ea5e9','#6366F1','#22C55E','#F59E0B','#f472b6','#94a3b8'], borderColor: '#111214', borderWidth: 2 }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', boxWidth: 9, font: { size: 9.5 }, padding: 8 } } } } });
+  }
+}
+
+const PIPELINE_DEF = [
+  { key: 'fetch', label: 'Fetch Sources', icon: 'rss', status: 'success', description: 'Pulls fresh headlines from every connected Tamil news site.', provider: 'RSS + Scrape' },
+  { key: 'dedup', label: 'Dedup & Cluster', icon: 'layers', status: 'success', description: 'Groups duplicate coverage of the same story across sources.', provider: 'DeepSeek V3.1' },
+  { key: 'script', label: 'Script (Tamil)', icon: 'feather', status: 'success', description: 'Writes a concise Tamil narration script for the story.', provider: 'DeepSeek V3' },
+  { key: 'voice', label: 'Voice (Tamil)', icon: 'mic', status: 'success', description: 'Generates natural Tamil voiceover audio.', provider: 'Kokoro TTS' },
+  { key: 'subtitle', label: 'Subtitle', icon: 'captions', status: 'warning', description: 'Generates Tamil + English burned-in captions.', provider: 'Gemini 2.5 Flash Lite' },
+  { key: 'thumbnail', label: 'Thumbnail', icon: 'image-plus', status: 'success', description: 'Creates the headline card and video thumbnail.', provider: 'OpenMontage' },
+  { key: 'qa', label: 'QA Review', icon: 'shield-check', status: 'success', description: 'Checks factual accuracy and caption sync before publish.', provider: 'Gemini 2.5 Flash Lite' },
+  { key: 'publish', label: 'Publish', icon: 'upload-cloud', status: 'success', description: 'Schedules and posts to each connected channel.', provider: 'Native APIs' },
+];
+
+let TNDATA = null;
+import('./tn-data.js').then(m => { TNDATA = m; });
+const STATUS_META = {
+  ingested: { label: 'Ingested', color: '#a5b4fc', bg: 'rgba(99,102,241,0.14)' },
+  scripted: { label: 'Scripted', color: '#fbbf24', bg: 'rgba(245,158,11,0.14)' },
+  voiced: { label: 'Voiced', color: '#38bdf8', bg: 'rgba(14,165,233,0.14)' },
+  edited: { label: 'Edited', color: '#38bdf8', bg: 'rgba(14,165,233,0.14)' },
+  published: { label: 'Published', color: '#22C55E', bg: 'rgba(34,197,94,0.14)' },
+};
+
+</script>
+</body>
+</html>

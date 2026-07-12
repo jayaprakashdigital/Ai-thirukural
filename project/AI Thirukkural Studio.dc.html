@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { margin: 0; background: #09090B; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    @keyframes pulseDot { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+    @keyframes flowMove { 0% { stroke-dashoffset: 24; } 100% { stroke-dashoffset: 0; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+    * { box-sizing: border-box; }
+  </style>
+</helmet>
+
+<div style="display:flex; min-height:100vh; width:100%; background:#09090B; color:#e4e4e7;">
+
+  <!-- SIDEBAR -->
+  <aside style="width:240px; flex-shrink:0; background:rgba(17,24,39,0.55); backdrop-filter:blur(20px); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; position:sticky; top:0; height:100vh;">
+    <div style="padding:20px 20px 16px 20px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div style="width:34px; height:34px; border-radius:9px; overflow:hidden; flex-shrink:0;"><img src="logo-mark-256.png" alt="Thirukkural Studio" style="width:100%; height:100%; object-fit:cover; display:block;" /></div>
+      <div style="min-width:0;">
+        <div style="font-weight:700; font-size:13.5px; color:#f4f4f5; letter-spacing:-0.01em; white-space:nowrap;">Thirukkural Studio</div>
+        <div style="font-size:10.5px; color:#71717a; white-space:nowrap;">AI Content Factory</div>
+      </div>
+    </div>
+
+    <nav style="flex:1; overflow-y:auto; padding:14px 12px; display:flex; flex-direction:column; gap:2px;">
+      <sc-for list="{{ navSections }}" as="section" hint-placeholder-count="4">
+        <div style="margin:14px 0 6px 0;">
+          <div style="font-size:10px; font-weight:700; color:#52525b; text-transform:uppercase; letter-spacing:0.08em; padding:0 10px 6px 10px;">{{ section.label }}</div>
+          <sc-for list="{{ section.items }}" as="item" hint-placeholder-count="3">
+            <div onClick="{{ item.onClick }}" style="{{ item.style }}">
+              <i data-lucide="{{ item.icon }}" style="width:16px; height:16px; flex-shrink:0;"></i>
+              <span style="font-size:13px; font-weight:500;">{{ item.label }}</span>
+              <sc-if value="{{ item.badge }}" hint-placeholder-val="{{ false }}">
+                <span style="margin-left:auto; font-size:10px; font-weight:700; background:rgba(99,102,241,0.18); color:#a5b4fc; padding:2px 6px; border-radius:6px;">{{ item.badge }}</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+
+    <div style="padding:14px; border-top:1px solid rgba(255,255,255,0.06); position:relative;">
+      <div onClick="{{ toggleProfileMenu }}" style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; background:rgba(255,255,255,0.03); cursor:pointer;">
+        <div style="width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#14B8A6,#22C55E); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#052e2b; flex-shrink:0;">DP</div>
+        <div style="min-width:0; flex:1;">
+          <div style="font-size:12px; font-weight:600; color:#e4e4e7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Dev Profile</div>
+          <div style="font-size:10.5px; color:#22C55E; display:flex; align-items:center; gap:4px;">
+            <span style="width:5px; height:5px; border-radius:50%; background:#22C55E; display:inline-block;"></span>Free Tier Active
+          </div>
+        </div>
+        <i data-lucide="chevrons-up-down" style="width:14px; height:14px; color:#71717a; flex-shrink:0;"></i>
+      </div>
+      <sc-if value="{{ profileMenuOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed; inset:0; z-index:29;" onClick="{{ closeHeaderMenu }}"></div>
+        <div onClick="{{ stopProp }}" style="position:absolute; bottom:78px; left:14px; right:14px; background:#18181b; border:1px solid rgba(255,255,255,0.09); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); z-index:30; padding:12px; display:flex; flex-direction:column; gap:10px;">
+          <div>
+            <div style="font-size:10px; font-weight:700; color:#52525b; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Environment</div>
+            <div style="display:flex; gap:6px;">
+              <div onClick="{{ setEnvDev }}" style="flex:1; text-align:center; padding:6px; border-radius:7px; font-size:11.5px; font-weight:600; cursor:pointer; background:{{ envDevBg }}; color:{{ envDevColor }};">Development</div>
+              <div onClick="{{ setEnvProd }}" style="flex:1; text-align:center; padding:6px; border-radius:7px; font-size:11.5px; font-weight:600; cursor:pointer; background:{{ envProdBg }}; color:{{ envProdColor }};">Production</div>
+            </div>
+          </div>
+          <div style="height:1px; background:rgba(255,255,255,0.07);"></div>
+          <div onClick="{{ goReports }}" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer;">
+            <i data-lucide="bar-chart-3" style="width:14px; height:14px;"></i> Reports
+          </div>
+          <div onClick="{{ goHealth }}" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer;">
+            <i data-lucide="activity" style="width:14px; height:14px;"></i> Health Dashboard
+          </div>
+          <div onClick="{{ goSettings }}" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer;">
+            <i data-lucide="settings" style="width:14px; height:14px;"></i> Settings &amp; Providers
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </aside>
+
+  <!-- MAIN COLUMN -->
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; overflow:hidden;">
+
+    <!-- TOP NAV -->
+    <header style="height:64px; flex-shrink:0; display:flex; align-items:center; gap:16px; padding:0 24px; border-bottom:1px solid rgba(255,255,255,0.06); background:rgba(9,9,11,0.7); backdrop-filter:blur(16px); position:sticky; top:0; z-index:20;">
+      <div style="position:relative; flex-shrink:1; min-width:0;">
+        <div onClick="{{ toggleProjectMenu }}" style="display:flex; align-items:center; gap:8px; font-size:13px; color:#a1a1aa; cursor:pointer; padding:6px 8px; margin:-6px -8px; border-radius:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <span style="color:#71717a;">Project</span>
+          <i data-lucide="chevron-right" style="width:13px; height:13px; color:#3f3f46;"></i>
+          <span style="color:#f4f4f5; font-weight:600;">{{ currentViewLabel }}</span>
+          <i data-lucide="chevron-down" style="width:13px; height:13px; color:#52525b; margin-left:2px;"></i>
+        </div>
+        <sc-if value="{{ projectMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:fixed; inset:0; z-index:29;" onClick="{{ closeHeaderMenu }}"></div>
+          <div onClick="{{ stopProp }}" style="position:absolute; top:38px; left:0; width:260px; background:#18181b; border:1px solid rgba(255,255,255,0.09); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); z-index:30; padding:12px; display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:13px; font-weight:700; color:#f4f4f5;">AI Thirukkural Studio</div>
+            <div style="font-size:11.5px; color:#71717a;">1330-video content factory · Free tier</div>
+            <div style="height:1px; background:rgba(255,255,255,0.07); margin:2px 0;"></div>
+            <div onClick="{{ goSettingsFromProject }}" style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#d4d4d8; padding:7px 8px; border-radius:8px; cursor:pointer;">
+              <i data-lucide="settings" style="width:14px; height:14px;"></i> Project Settings
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="flex:1 1 100px; min-width:60px; max-width:420px; position:relative; margin-left:12px;">
+        <i data-lucide="search" style="width:15px; height:15px; color:#52525b; position:absolute; left:11px; top:50%; transform:translateY(-50%);"></i>
+        <input value="{{ globalSearch }}" onChange="{{ onGlobalSearch }}" placeholder="Search kurals, videos, agents..." style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:8px 12px 8px 34px; font-size:12.5px; color:#e4e4e7; outline:none;" />
+        <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:fixed; inset:0; z-index:29;" onClick="{{ clearSearch }}"></div>
+          <div onClick="{{ stopProp }}" style="position:absolute; top:40px; left:0; width:340px; max-width:80vw; background:#18181b; border:1px solid rgba(255,255,255,0.09); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.5); z-index:30; padding:6px; max-height:340px; overflow-y:auto;">
+            <sc-if value="{{ searchHasResults }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ searchResults }}" as="r" hint-placeholder-count="3">
+                <div onClick="{{ r.onClick }}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:8px; cursor:pointer;">
+                  <span style="font-size:11px; font-weight:700; color:#a5b4fc; background:rgba(99,102,241,0.15); border-radius:6px; padding:2px 6px; flex-shrink:0;">#{{ r.num }}</span>
+                  <div style="min-width:0; flex:1;">
+                    <div style="font-size:12.5px; color:#e4e4e7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.preview }}</div>
+                    <div style="font-size:10.5px; color:#71717a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.chapterEnglish }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ searchNoResults }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:16px; text-align:center; font-size:12px; color:#71717a;">No matches in kurals.</div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="flex:1; min-width:0;"></div>
+
+      <div style="position:relative; flex-shrink:1; min-width:0;">
+        <select value="{{ selectedModel }}" onChange="{{ onModelChange }}" style="appearance:none; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; font-weight:500; padding:7px 26px 7px 10px; border-radius:8px; outline:none; cursor:pointer; max-width:160px; text-overflow:ellipsis;">
+          <option>DeepSeek V3.1 (Free)</option>
+          <option>Qwen 3 (Free)</option>
+          <option>Gemini 2.5 Flash Lite (Free)</option>
+          <option>Claude Opus 4.6</option>
+        </select>
+      </div>
+
+      <button style="width:36px; height:36px; flex-shrink:0; border-radius:9px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;">
+        <i data-lucide="bell" style="width:16px; height:16px; color:#a1a1aa;"></i>
+        <span style="position:absolute; top:7px; right:8px; width:6px; height:6px; border-radius:50%; background:#EF4444;"></span>
+      </button>
+
+      <button onClick="{{ openGenerate }}" style="display:flex; align-items:center; gap:6px; padding:8px 16px; flex-shrink:0; white-space:nowrap; border-radius:9px; border:none; background:linear-gradient(135deg,#6366F1,#4f46e5); color:white; font-size:12.5px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(99,102,241,0.35);">
+        <i data-lucide="sparkles" style="width:14px; height:14px;"></i> Generate
+      </button>
+    </header>
+
+    <!-- CONTENT -->
+    <main style="flex:1; overflow-y:auto; padding:28px 32px 60px 32px;">
+      <sc-if value="{{ viewIs.projects }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:22px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Projects</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Every AI content factory running under this workspace.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px;">
+            <div style="border-radius:16px; padding:22px; background:linear-gradient(135deg, rgba(99,102,241,0.16), rgba(20,184,166,0.08)); border:1px solid rgba(99,102,241,0.3); position:relative; overflow:hidden;">
+              <div style="position:absolute; top:10px; right:10px; font-size:10px; font-weight:700; color:#86efac; background:rgba(34,197,94,0.15); padding:3px 8px; border-radius:6px;">ACTIVE</div>
+              <div style="width:42px; height:42px; border-radius:11px; overflow:hidden; margin-bottom:14px;"><img src="logo-mark-256.png" style="width:100%; height:100%; object-fit:cover;" /></div>
+              <div style="font-size:16px; font-weight:800; color:#fafafa; margin-bottom:4px;">AI Thirukkural Studio</div>
+              <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:16px; line-height:1.5;">Converts all 1,330 Thirukkurals into educational Tamil videos — verse to publish.</div>
+              <div style="display:flex; gap:14px; font-size:11.5px; color:#71717a;"><span><b style="color:#e4e4e7;">1,330</b> kurals</span><span><b style="color:#e4e4e7;">284</b> published</span></div>
+            </div>
+
+            <a href="JP Personal AI Studio.dc.html" style="text-decoration:none; border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(12px); display:block; transition:border-color 0.15s;">
+              <div style="width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,#6366F1,#d946ef); display:flex; align-items:center; justify-content:center; margin-bottom:14px;"><i data-lucide="sparkles" style="width:20px; height:20px; color:white;"></i></div>
+              <div style="font-size:16px; font-weight:800; color:#fafafa; margin-bottom:4px;">JP Personal AI Studio</div>
+              <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:16px; line-height:1.5;">Daily AI &amp; digital-marketing content for Instagram, YouTube and TikTok — from a daily topic to a published post.</div>
+              <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#a5b4fc;">Open project <i data-lucide="arrow-right" style="width:13px; height:13px;"></i></div>
+            </a>
+
+            <a href="AI Tamil News Studio.dc.html" style="text-decoration:none; border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(12px); display:block; transition:border-color 0.15s;">
+              <div style="width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg,#6366F1,#0ea5e9); display:flex; align-items:center; justify-content:center; margin-bottom:14px;"><i data-lucide="newspaper" style="width:20px; height:20px; color:white;"></i></div>
+              <div style="font-size:16px; font-weight:800; color:#fafafa; margin-bottom:4px;">AI Tamil News Studio</div>
+              <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:16px; line-height:1.5;">Pulls daily stories from Tamil news sites and turns them into short AI news videos, automatically.</div>
+              <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#a5b4fc;">Open project <i data-lucide="arrow-right" style="width:13px; height:13px;"></i></div>
+            </a>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.dashboard }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex; flex-direction:column; gap:22px; animation:fadeUp 0.4s ease;">
+
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Studio Overview</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">AI-powered content factory for 1330 Thirukkural videos — from verse to publish.</p>
+          </div>
+
+          <!-- HERO CARDS -->
+          <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:18px;">
+            <div style="border-radius:16px; padding:22px; background:linear-gradient(135deg, rgba(99,102,241,0.16), rgba(20,184,166,0.08)); border:1px solid rgba(99,102,241,0.25); position:relative; overflow:hidden;">
+              <div style="position:absolute; top:-40px; right:-40px; width:160px; height:160px; border-radius:50%; background:radial-gradient(circle, rgba(99,102,241,0.25), transparent 70%);"></div>
+              <div style="font-size:12px; font-weight:600; color:#a5b4fc; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Knowledge Base</div>
+              <div style="display:flex; align-items:baseline; gap:8px;">
+                <span style="font-size:38px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">1,330</span>
+                <span style="font-size:13px; color:#c7d2fe;">Kurals</span>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:16px;">
+                <div><div style="font-size:18px; font-weight:700; color:#f4f4f5;">133</div><div style="font-size:11px; color:#a1a1aa; white-space:nowrap;">Chapters</div></div>
+                <div><div style="font-size:18px; font-weight:700; color:#f4f4f5;">3</div><div style="font-size:11px; color:#a1a1aa; white-space:nowrap;">Sections</div></div>
+                <div><div style="font-size:18px; font-weight:700; color:#f4f4f5;">100%</div><div style="font-size:11px; color:#a1a1aa; white-space:nowrap;">Indexed</div></div>
+              </div>
+            </div>
+
+            <div style="border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(12px);">
+              <div style="font-size:12px; font-weight:600; color:#5eead4; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Videos Published</div>
+              <div style="display:flex; align-items:baseline; gap:8px;">
+                <span style="font-size:38px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">284</span>
+                <span style="font-size:12.5px; color:#22C55E; font-weight:600;">+18 today</span>
+              </div>
+              <div style="margin-top:16px; height:6px; border-radius:4px; background:rgba(255,255,255,0.06); overflow:hidden;">
+                <div style="width:21%; height:100%; background:linear-gradient(90deg,#14B8A6,#22C55E); border-radius:4px;"></div>
+              </div>
+              <div style="margin-top:8px; font-size:11.5px; color:#71717a;">21% of 1,330 kurals published</div>
+            </div>
+
+            <div style="border-radius:16px; padding:22px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(12px);">
+              <div style="font-size:12px; font-weight:600; color:#fbbf24; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">Pipeline Health</div>
+              <div style="display:flex; align-items:baseline; gap:8px;">
+                <span style="font-size:38px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">98.2%</span>
+                <span style="font-size:12.5px; color:#a1a1aa;">uptime</span>
+              </div>
+              <div style="display:flex; gap:6px; margin-top:16px;">
+                <sc-for list="{{ healthDots }}" as="dot" hint-placeholder-count="8">
+                  <span style="{{ dot.style }}"></span>
+                </sc-for>
+              </div>
+              <div style="margin-top:8px; font-size:11.5px; color:#71717a;">8 core services monitored</div>
+            </div>
+          </div>
+
+          <!-- VIDEO STATISTICS ROW -->
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:10px;">Video Statistics</div>
+            <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:14px;">
+              <sc-for list="{{ videoStats }}" as="stat" hint-placeholder-count="6">
+                <div style="border-radius:13px; padding:16px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+                  <div style="display:flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; margin-bottom:10px; background:{{ stat.iconBg }};">
+                    <i data-lucide="{{ stat.icon }}" style="width:15px; height:15px; color:{{ stat.iconColor }};"></i>
+                  </div>
+                  <div style="font-size:20px; font-weight:800; color:#fafafa; letter-spacing:-0.01em;">{{ stat.value }}</div>
+                  <div style="font-size:11px; color:#71717a; margin-top:2px;">{{ stat.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- PIPELINE VISUALIZATION -->
+          <div style="border-radius:16px; padding:22px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex; align-items:center; justify-content:between; margin-bottom:18px;">
+              <div>
+                <div style="font-size:13px; font-weight:700; color:#d4d4d8;">Live Pipeline</div>
+                <div style="font-size:11.5px; color:#71717a; margin-top:2px;">Knowledge → Publish · click a stage for detail</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; overflow-x:auto; padding-bottom:6px;">
+              <sc-for list="{{ pipelineStages }}" as="stage" hint-placeholder-count="10">
+                <div style="display:flex; align-items:center; flex-shrink:0;">
+                  <div onClick="{{ stage.onClick }}" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; width:96px;">
+                    <div style="width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:{{ stage.bg }}; border:1.5px solid {{ stage.border }}; position:relative; transition:transform 0.15s;">
+                      <i data-lucide="{{ stage.icon }}" style="width:20px; height:20px; color:{{ stage.color }};"></i>
+                      <span style="position:absolute; top:-3px; right:-3px; width:10px; height:10px; border-radius:50%; background:{{ stage.color }}; border:2px solid #111827; {{ stage.pulse }}"></span>
+                    </div>
+                    <div style="font-size:10.5px; font-weight:600; color:#a1a1aa; text-align:center; line-height:1.2;">{{ stage.label }}</div>
+                  </div>
+                  <sc-if value="{{ stage.hasNext }}" hint-placeholder-val="{{ true }}">
+                    <svg width="30" height="14" style="flex-shrink:0; margin:0 -4px;"><line x1="0" y1="7" x2="30" y2="7" stroke="#3f3f46" stroke-width="2" stroke-dasharray="4 4" style="animation:flowMove 1s linear infinite;"/></svg>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- CHARTS ROW -->
+          <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:18px;">
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Videos Generated (14 days)</div>
+              <div style="height:220px;"><canvas ref="{{ dailyChartRef }}"></canvas></div>
+            </div>
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Cost by Stage</div>
+              <div style="height:220px;"><canvas ref="{{ costChartRef }}"></canvas></div>
+            </div>
+          </div>
+
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.knowledge }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Knowledge Base</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">1,330 kurals across 133 chapters — source material for every generated video.</p>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px;">
+            <div style="border-radius:13px; padding:16px 18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:20px; font-weight:800; color:#fafafa;">1,330</div>
+              <div style="font-size:11.5px; color:#71717a; margin-top:2px;">Total Kurals</div>
+            </div>
+            <div style="border-radius:13px; padding:16px 18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:20px; font-weight:800; color:#fafafa;">133</div>
+              <div style="font-size:11.5px; color:#71717a; margin-top:2px;">Chapters</div>
+            </div>
+            <div style="border-radius:13px; padding:16px 18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:20px; font-weight:800; color:#fafafa;">3</div>
+              <div style="font-size:11.5px; color:#71717a; margin-top:2px;">Sections</div>
+            </div>
+            <div style="border-radius:13px; padding:16px 18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:20px; font-weight:800; color:#22C55E;">{{ kbProcessedPct }}%</div>
+              <div style="font-size:11.5px; color:#71717a; margin-top:2px;">Story Prepared</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="flex:1; min-width:220px; position:relative;">
+              <i data-lucide="search" style="width:14px; height:14px; color:#52525b; position:absolute; left:11px; top:50%; transform:translateY(-50%);"></i>
+              <input value="{{ kbSearch }}" onChange="{{ onKbSearch }}" placeholder="Search by kural number, chapter, or text..." style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:8px 12px 8px 32px; font-size:12.5px; color:#e4e4e7; outline:none;" />
+            </div>
+            <select value="{{ kbBook }}" onChange="{{ onKbBook }}" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; padding:8px 12px; border-radius:9px; outline:none; cursor:pointer;">
+              <option value="all">All Sections</option>
+              <option value="aram">Virtue (அறத்துப்பால்)</option>
+              <option value="porul">Wealth (பொருட்பால்)</option>
+              <option value="inbam">Love (இன்பத்துப்பால்)</option>
+            </select>
+            <select value="{{ kbChapter }}" onChange="{{ onKbChapter }}" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; padding:8px 12px; border-radius:9px; outline:none; cursor:pointer; max-width:220px;">
+              <option value="all">All Chapters</option>
+              <sc-for list="{{ kbChapterOptions }}" as="ch" hint-placeholder-count="5">
+                <option value="{{ ch.value }}">{{ ch.text }}</option>
+              </sc-for>
+            </select>
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-size:11.5px; color:#71717a;">Showing {{ kbRangeText }} of {{ kbFilteredCount }} kurals</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button onClick="{{ kbPrevPage }}" style="width:28px; height:28px; border-radius:7px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i data-lucide="chevron-left" style="width:14px; height:14px;"></i></button>
+              <span style="font-size:11.5px; color:#a1a1aa;">Page {{ kbPageDisplay }} / {{ kbPageCount }}</span>
+              <button onClick="{{ kbNextPage }}" style="width:28px; height:28px; border-radius:7px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i data-lucide="chevron-right" style="width:14px; height:14px;"></i></button>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px;">
+            <sc-for list="{{ kbPageItems }}" as="k" hint-placeholder-count="12">
+              <div onClick="{{ k.onClick }}" style="border-radius:13px; padding:15px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); cursor:pointer; display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-size:11px; font-weight:700; color:#71717a;">#{{ k.num }}</span>
+                  <span style="font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:6px; background:{{ k.stageBg }}; color:{{ k.stageColor }};">{{ k.storyStageLabel }}</span>
+                </div>
+                <div style="font-size:12px; font-weight:600; color:#d4d4d8; line-height:1.4; min-height:34px;">{{ k.tamilPreview }}</div>
+                <div style="font-size:10.5px; color:#52525b;">{{ k.chapterTamil }} · Ch. {{ k.chapterNum }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.workflow }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:22px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Workflow</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">14-stage state machine — every kural moves through this pipeline on its way to publish.</p>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px;">
+            <div style="border-radius:13px; padding:16px 18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:20px; font-weight:800; color:#fafafa;">14</div>
+              <div style="font-size:11.5px; color:#71717a; margin-top:2px;">Pipeline Stages</div>
+            </div>
+            <div style="border-radius:13px; padding:16px 18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:20px; font-weight:800; color:#fafafa;">6m 40s</div>
+              <div style="font-size:11.5px; color:#71717a; margin-top:2px;">Avg End-to-End Time</div>
+            </div>
+            <div style="border-radius:13px; padding:16px 18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:20px; font-weight:800; color:#22C55E;">96.4%</div>
+              <div style="font-size:11.5px; color:#71717a; margin-top:2px;">Straight-Through Rate</div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <sc-for list="{{ workflowStages }}" as="wf" hint-placeholder-count="14">
+              <div style="display:flex; gap:16px; align-items:flex-start;">
+                <div style="display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:44px;">
+                  <div style="width:40px; height:40px; border-radius:11px; background:{{ wf.bg }}; border:1.5px solid {{ wf.border }}; display:flex; align-items:center; justify-content:center;">
+                    <i data-lucide="{{ wf.icon }}" style="width:18px; height:18px; color:{{ wf.color }};"></i>
+                  </div>
+                  <sc-if value="{{ wf.hasNext }}" hint-placeholder-val="{{ true }}">
+                    <div style="width:2px; flex:1; min-height:22px; background:linear-gradient(#3f3f46,#3f3f46); margin-top:4px;"></div>
+                  </sc-if>
+                </div>
+                <div style="flex:1; border-radius:13px; padding:14px 18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); margin-bottom:2px; display:flex; align-items:center; gap:16px;">
+                  <div style="flex:1; min-width:0;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <span style="font-size:13.5px; font-weight:700; color:#f4f4f5; white-space:nowrap;">{{ wf.name }}</span>
+                      <span style="font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:6px; background:{{ wf.bg }}; color:{{ wf.color }};">{{ wf.statusLabel }}</span>
+                    </div>
+                    <div style="font-size:12px; color:#71717a; margin-top:3px;">{{ wf.description }}</div>
+                  </div>
+                  <div style="text-align:right; flex-shrink:0;">
+                    <div style="font-size:13px; font-weight:700; color:#d4d4d8;">{{ wf.avgTime }}</div>
+                    <div style="font-size:10.5px; color:#52525b;">avg time</div>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.videos }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div>
+              <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Videos</h1>
+              <p style="margin:0; font-size:13.5px; color:#71717a;">Rendered and published Thirukkural videos.</p>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="flex:1; min-width:220px; position:relative;">
+              <i data-lucide="search" style="width:14px; height:14px; color:#52525b; position:absolute; left:11px; top:50%; transform:translateY(-50%);"></i>
+              <input value="{{ vidSearch }}" onChange="{{ onVidSearch }}" placeholder="Search videos by kural number or chapter..." style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:9px; padding:8px 12px 8px 32px; font-size:12.5px; color:#e4e4e7; outline:none;" />
+            </div>
+            <select value="{{ vidStatus }}" onChange="{{ onVidStatus }}" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; padding:8px 12px; border-radius:9px; outline:none; cursor:pointer;">
+              <option value="all">All Statuses</option>
+              <option value="video_ready">Rendered</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+
+          <div style="font-size:11.5px; color:#71717a;">{{ vidCount }} videos</div>
+
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+            <sc-for list="{{ vidItems }}" as="v" hint-placeholder-count="9">
+              <div style="border-radius:14px; overflow:hidden; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column;">
+                <div style="aspect-ratio:16/9; background:repeating-linear-gradient(135deg, rgba(99,102,241,0.10), rgba(99,102,241,0.10) 10px, rgba(20,184,166,0.08) 10px, rgba(20,184,166,0.08) 20px); display:flex; align-items:center; justify-content:center; position:relative;">
+                  <i data-lucide="play-circle" style="width:30px; height:30px; color:rgba(255,255,255,0.7);"></i>
+                  <span style="position:absolute; bottom:8px; right:8px; font-size:10.5px; font-weight:600; background:rgba(0,0,0,0.6); padding:2px 6px; border-radius:5px; color:#e4e4e7;">{{ v.duration }}</span>
+                  <span style="position:absolute; top:8px; left:8px; font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:6px; background:{{ v.stageBg }}; color:{{ v.stageColor }};">{{ v.storyStageLabel }}</span>
+                </div>
+                <div style="padding:14px; display:flex; flex-direction:column; gap:8px; flex:1;">
+                  <div style="font-size:13px; font-weight:700; color:#f4f4f5;">Kural #{{ v.num }} — {{ v.chapterEnglish }}</div>
+                  <div style="display:flex; align-items:center; gap:12px; font-size:11px; color:#71717a;">
+                    <span style="display:flex; align-items:center; gap:4px;"><i data-lucide="star" style="width:11px; height:11px; color:#fbbf24;"></i>{{ v.quality }}</span>
+                    <span>{{ v.createdText }}</span>
+                  </div>
+                  <div style="display:flex; gap:6px; margin-top:4px;">
+                    <button style="flex:1; padding:6px 0; border-radius:7px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:11px; font-weight:600; cursor:pointer;">Preview</button>
+                    <button style="flex:1; padding:6px 0; border-radius:7px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:11px; font-weight:600; cursor:pointer;">Download</button>
+                    <button style="width:30px; padding:6px 0; border-radius:7px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#f87171; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i data-lucide="trash-2" style="width:12px; height:12px;"></i></button>
+                  </div>
+                  <sc-if value="{{ v.showApprove }}" hint-placeholder-val="{{ false }}">
+                    <button style="padding:6px 0; border-radius:7px; background:rgba(34,197,94,0.14); border:1px solid rgba(34,197,94,0.3); color:#4ade80; font-size:11px; font-weight:600; cursor:pointer;">Approve</button>
+                  </sc-if>
+                  <sc-if value="{{ v.showPublish }}" hint-placeholder-val="{{ false }}">
+                    <button style="padding:6px 0; border-radius:7px; background:rgba(99,102,241,0.14); border:1px solid rgba(99,102,241,0.3); color:#a5b4fc; font-size:11px; font-weight:600; cursor:pointer;">Publish</button>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.agents }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Agents</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Each stage of the pipeline is run by a dedicated AI agent.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+            <sc-for list="{{ agentCards }}" as="a" hint-placeholder-count="7">
+              <div style="border-radius:14px; padding:18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:34px; height:34px; border-radius:9px; background:{{ a.bg }}; display:flex; align-items:center; justify-content:center;">
+                      <i data-lucide="{{ a.icon }}" style="width:16px; height:16px; color:{{ a.color }};"></i>
+                    </div>
+                    <span style="font-size:13.5px; font-weight:700; color:#f4f4f5;">{{ a.name }}</span>
+                  </div>
+                  <span style="width:8px; height:8px; border-radius:50%; background:{{ a.statusDot }};"></span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div><div style="font-size:10px; color:#71717a;">Avg Time</div><div style="font-size:13px; font-weight:600; color:#d4d4d8; margin-top:2px;">{{ a.avgTime }}</div></div>
+                  <div><div style="font-size:10px; color:#71717a;">Tokens</div><div style="font-size:13px; font-weight:600; color:#d4d4d8; margin-top:2px;">{{ a.tokens }}</div></div>
+                  <div><div style="font-size:10px; color:#71717a;">Cost / run</div><div style="font-size:13px; font-weight:600; color:#d4d4d8; margin-top:2px;">{{ a.cost }}</div></div>
+                  <div><div style="font-size:10px; color:#71717a;">Cache Hit</div><div style="font-size:13px; font-weight:600; color:#5eead4; margin-top:2px;">{{ a.cacheHit }}</div></div>
+                </div>
+                <select value="{{ a.provider }}" onChange="{{ a.onProviderChange }}" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:11.5px; padding:7px 10px; border-radius:8px; outline:none; cursor:pointer; width:100%;">
+                  <sc-for list="{{ a.providerOptions }}" as="po" hint-placeholder-count="3">
+                    <option value="{{ po }}">{{ po }}</option>
+                  </sc-for>
+                </select>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.providers }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Provider Manager</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Assign a model provider to each pipeline stage — switch freely between free and paid tiers.</p>
+          </div>
+          <div style="border-radius:14px; border:1px solid rgba(255,255,255,0.06); overflow:hidden;">
+            <div style="display:grid; grid-template-columns:1.3fr 1.6fr 0.7fr 0.9fr; padding:12px 18px; background:rgba(255,255,255,0.03); font-size:10.5px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.05em;">
+              <div>Stage</div><div>Provider</div><div>Tier</div><div>Est. Cost / 1K runs</div>
+            </div>
+            <sc-for list="{{ providerRows }}" as="row" hint-placeholder-count="7">
+              <div style="display:grid; grid-template-columns:1.3fr 1.6fr 0.7fr 0.9fr; padding:14px 18px; align-items:center; border-top:1px solid rgba(255,255,255,0.05);">
+                <div style="font-size:12.5px; font-weight:600; color:#e4e4e7;">{{ row.stage }}</div>
+                <select value="{{ row.provider }}" onChange="{{ row.onChange }}" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:12px; padding:6px 10px; border-radius:8px; outline:none; cursor:pointer; width:fit-content;">
+                  <sc-for list="{{ row.options }}" as="po" hint-placeholder-count="3">
+                    <option value="{{ po }}">{{ po }}</option>
+                  </sc-for>
+                </select>
+                <div><span style="font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:6px; background:{{ row.tierBg }}; color:{{ row.tierColor }};">{{ row.tier }}</span></div>
+                <div style="font-size:12.5px; color:#a1a1aa;">{{ row.cost }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.prompts }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Prompt Library</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Versioned prompt templates for every agent in the pipeline.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:230px 1fr; gap:18px; align-items:start;">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <sc-for list="{{ promptList }}" as="p" hint-placeholder-count="6">
+                <div onClick="{{ p.onClick }}" style="padding:10px 12px; border-radius:9px; cursor:pointer; background:{{ p.bg }};">
+                  <div style="font-size:12.5px; font-weight:600; color:{{ p.color }};">{{ p.name }}</div>
+                  <div style="font-size:10.5px; color:#52525b; margin-top:2px;">v{{ p.version }} · {{ p.updated }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="border-radius:14px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+                <div style="font-size:14px; font-weight:700; color:#f4f4f5;">{{ promptSelected.name }} — v{{ promptSelected.version }}</div>
+                <div style="display:flex; gap:8px;">
+                  <button onClick="{{ promptToggleDiff }}" style="padding:7px 14px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:11.5px; font-weight:600; cursor:pointer;">{{ promptDiffLabel }}</button>
+                  <button style="padding:7px 14px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:#d4d4d8; font-size:11.5px; font-weight:600; cursor:pointer;">Export</button>
+                </div>
+              </div>
+              <sc-if value="{{ promptShowDiff }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:monospace; font-size:12px; line-height:1.8; background:rgba(0,0,0,0.25); border-radius:10px; padding:16px;">
+                  <div style="color:#f87171; background:rgba(239,68,68,0.08);">- {{ promptSelected.prevLine }}</div>
+                  <div style="color:#4ade80; background:rgba(34,197,94,0.08);">+ {{ promptSelected.newLine }}</div>
+                  <div style="color:#a1a1aa;">{{ promptSelected.body }}</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ promptShowEdit }}" hint-placeholder-val="{{ true }}">
+                <textarea style="width:100%; min-height:220px; background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:14px; font-family:monospace; font-size:12px; color:#d4d4d8; outline:none; resize:vertical;">{{ promptSelected.newLine }}
+{{ promptSelected.body }}</textarea>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.characters }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Characters</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Recurring character archetypes kept consistent across all 1,330 videos.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px;">
+            <sc-for list="{{ characterCards }}" as="c" hint-placeholder-count="8">
+              <div style="border-radius:14px; overflow:hidden; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+                <div style="aspect-ratio:1; background:repeating-linear-gradient(135deg, rgba(99,102,241,0.10), rgba(99,102,241,0.10) 10px, rgba(20,184,166,0.08) 10px, rgba(20,184,166,0.08) 20px); display:flex; align-items:center; justify-content:center;">
+                  <span style="font-family:monospace; font-size:10px; color:#71717a;">portrait</span>
+                </div>
+                <div style="padding:13px;">
+                  <div style="font-size:13px; font-weight:700; color:#f4f4f5;">{{ c.name }}</div>
+                  <div style="font-size:11px; color:#71717a; margin-top:4px; line-height:1.5;">{{ c.description }}</div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px;">
+                    <span style="font-size:10.5px; color:#52525b;">Consistency</span>
+                    <span style="font-size:11.5px; font-weight:700; color:#4ade80;">{{ c.consistency }}%</span>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.storyboards }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Storyboards</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Scene-by-scene shot plans generated by the Director Agent.</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <sc-for list="{{ storyboardRows }}" as="sb" hint-placeholder-count="4">
+              <div style="border-radius:14px; padding:16px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+                <div style="font-size:13px; font-weight:700; color:#f4f4f5; margin-bottom:10px;">Kural #{{ sb.num }} — {{ sb.chapterEnglish }}</div>
+                <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:10px;">
+                  <sc-for list="{{ sb.frames }}" as="fr" hint-placeholder-count="5">
+                    <div style="aspect-ratio:16/10; border-radius:8px; background:repeating-linear-gradient(135deg, rgba(99,102,241,0.10), rgba(99,102,241,0.10) 8px, rgba(20,184,166,0.08) 8px, rgba(20,184,166,0.08) 16px); display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.07);">
+                      <span style="font-family:monospace; font-size:9px; color:#71717a;">SC{{ fr }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.reports }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Reports</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Production analytics across the pipeline.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Token Usage by Agent</div>
+              <div style="height:220px;"><canvas ref="{{ tokenChartRef }}"></canvas></div>
+            </div>
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Cache Hit Rate (14 days)</div>
+              <div style="height:220px;"><canvas ref="{{ cacheChartRef }}"></canvas></div>
+            </div>
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Average Quality Score</div>
+              <div style="height:220px;"><canvas ref="{{ qualityChartRef }}"></canvas></div>
+            </div>
+            <div style="border-radius:16px; padding:20px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+              <div style="font-size:13px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">Pipeline Duration Breakdown</div>
+              <div style="height:220px;"><canvas ref="{{ durationChartRef }}"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.health }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Health Dashboard</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Live status of every service the pipeline depends on.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px;">
+            <sc-for list="{{ healthServices }}" as="h" hint-placeholder-count="8">
+              <div style="border-radius:13px; padding:16px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-size:13px; font-weight:700; color:#f4f4f5;">{{ h.name }}</span>
+                  <span style="width:8px; height:8px; border-radius:50%; background:{{ h.dot }};"></span>
+                </div>
+                <div style="font-size:11px; font-weight:700; color:{{ h.dot }};">{{ h.status }}</div>
+                <div style="font-size:11px; color:#71717a;">{{ h.latency }} latency</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ viewIs.settings }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-direction:column; gap:20px; animation:fadeUp 0.4s ease; max-width:640px;">
+          <div>
+            <h1 style="margin:0 0 4px 0; font-size:24px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">Settings</h1>
+            <p style="margin:0; font-size:13.5px; color:#71717a;">Environment, providers, and API keys.</p>
+          </div>
+
+          <div style="border-radius:14px; padding:18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:12.5px; font-weight:700; color:#d4d4d8; margin-bottom:12px;">Active Profile</div>
+            <div style="display:flex; gap:8px;">
+              <sc-for list="{{ settingsProfiles }}" as="p" hint-placeholder-count="2">
+                <div onClick="{{ p.onClick }}" style="{{ p.style }}">{{ p.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="border-radius:14px; padding:18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:12.5px; font-weight:700; color:#d4d4d8; margin-bottom:12px;">Environment</div>
+            <div style="display:flex; gap:8px;">
+              <sc-for list="{{ settingsEnvs }}" as="e" hint-placeholder-count="2">
+                <div onClick="{{ e.onClick }}" style="{{ e.style }}">{{ e.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="border-radius:14px; padding:18px; background:rgba(17,24,39,0.5); border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:12.5px; font-weight:700; color:#d4d4d8; margin-bottom:14px;">API Keys</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <sc-for list="{{ apiKeyRows }}" as="k" hint-placeholder-count="4">
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:rgba(255,255,255,0.025); border-radius:9px;">
+                  <span style="font-size:12.5px; color:#d4d4d8;">{{ k.name }}</span>
+                  <span style="font-family:monospace; font-size:11.5px; color:#52525b;">{{ k.masked }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ kbDetail }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeKbDetail }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(2px); z-index:50; display:flex; align-items:center; justify-content:center; padding:30px;">
+          <div onClick="{{ stopProp }}" style="width:100%; max-width:780px; max-height:88vh; background:#111214; border:1px solid rgba(255,255,255,0.08); border-radius:18px; display:flex; flex-direction:column; overflow:hidden;">
+            <div style="padding:20px 26px; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+              <div>
+                <div style="font-size:11px; color:#71717a; font-weight:600;">KURAL #{{ kbDetail.num }} · CHAPTER {{ kbDetail.chapterNum }}</div>
+                <div style="font-size:17px; font-weight:700; color:#fafafa; margin-top:3px;">{{ kbDetail.chapterTamil }} <span style="color:#71717a; font-weight:500; font-size:13px;">— {{ kbDetail.chapterEnglish }}</span></div>
+              </div>
+              <button onClick="{{ closeKbDetail }}" style="width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,0.05); border:none; color:#a1a1aa; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i data-lucide="x" style="width:15px; height:15px;"></i></button>
+            </div>
+
+            <div style="display:flex; gap:2px; padding:0 26px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; overflow-x:auto;">
+              <sc-for list="{{ kbTabs }}" as="tab" hint-placeholder-count="7">
+                <div onClick="{{ tab.onClick }}" style="{{ tab.style }}">{{ tab.label }}</div>
+              </sc-for>
+            </div>
+
+            <div style="padding:22px 26px; overflow-y:auto; flex:1;">
+
+              <sc-if value="{{ kbTabIs.overview }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ kbDetail.hasContent }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-family:'Noto Sans Tamil', sans-serif; font-size:19px; font-weight:600; color:#f4f4f5; line-height:1.7; margin-bottom:16px;">
+                    <div>{{ kbDetail.tamilLine1 }}</div>
+                    <div>{{ kbDetail.tamilLine2 }}</div>
+                  </div>
+                  <div style="font-size:13.5px; color:#a1a1aa; line-height:1.7;">{{ kbDetail.english }}</div>
+                </sc-if>
+                <sc-if value="{{ kbDetail.hasContent }}" hint-placeholder-val="{{ true }}">
+                  <div style="text-align:center; padding:34px 10px; color:#52525b;">
+                    <i data-lucide="hourglass" style="width:26px; height:26px; margin-bottom:10px;"></i>
+                    <div style="font-size:13px; font-weight:600; color:#a1a1aa;">Not yet processed by Education Agent</div>
+                    <div style="font-size:11.5px; margin-top:4px;">This kural is queued in the pipeline — Tamil text and translation will populate once processed.</div>
+                  </div>
+                </sc-if>
+              </sc-if>
+
+              <sc-if value="{{ kbTabIs.story }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  <div>
+                    <div style="font-size:10.5px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Logline</div>
+                    <div style="font-size:13.5px; color:#e4e4e7; line-height:1.6;">{{ kbStory.logline }}</div>
+                  </div>
+                  <div>
+                    <div style="font-size:10.5px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Synopsis</div>
+                    <div style="font-size:13px; color:#a1a1aa; line-height:1.7;">{{ kbStory.synopsis }}</div>
+                  </div>
+                  <div style="display:flex; gap:8px;">
+                    <span style="font-size:11px; font-weight:600; padding:5px 10px; border-radius:7px; background:rgba(99,102,241,0.14); color:#a5b4fc;">Tone: {{ kbStory.tone }}</span>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ kbTabIs.script }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <sc-for list="{{ kbScript }}" as="sc" hint-placeholder-count="5">
+                    <div style="display:grid; grid-template-columns:52px 100px 1fr; gap:14px; padding:12px; background:rgba(255,255,255,0.025); border-radius:10px; align-items:start;">
+                      <div style="font-size:11px; font-weight:700; color:#71717a;">SC {{ sc.scene }}</div>
+                      <div>
+                        <div style="font-size:11px; font-weight:600; color:#5eead4;">{{ sc.time }}</div>
+                        <div style="font-size:10px; color:#52525b; margin-top:2px;">{{ sc.duration }}</div>
+                      </div>
+                      <div>
+                        <div style="font-size:12.5px; font-weight:600; color:#e4e4e7;">{{ sc.shot }}</div>
+                        <div style="font-size:12px; color:#8a8a92; margin-top:3px; line-height:1.5;">{{ sc.vo }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ kbTabIs.images }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                  <sc-for list="{{ kbImages }}" as="img" hint-placeholder-count="4">
+                    <div>
+                      <div style="aspect-ratio:16/10; border-radius:10px; background:repeating-linear-gradient(135deg, rgba(99,102,241,0.10), rgba(99,102,241,0.10) 10px, rgba(20,184,166,0.08) 10px, rgba(20,184,166,0.08) 20px); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center;">
+                        <span style="font-family:monospace; font-size:10.5px; color:#71717a; text-align:center; padding:0 12px;">{{ img.tag }}</span>
+                      </div>
+                      <div style="font-size:11.5px; color:#a1a1aa; margin-top:6px;">{{ img.label }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ kbTabIs.video }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  <div style="aspect-ratio:16/9; max-width:360px; border-radius:12px; background:repeating-linear-gradient(135deg, rgba(99,102,241,0.10), rgba(99,102,241,0.10) 10px, rgba(20,184,166,0.08) 10px, rgba(20,184,166,0.08) 20px); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; position:relative;">
+                    <i data-lucide="play-circle" style="width:36px; height:36px; color:#e4e4e7;"></i>
+                  </div>
+                  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
+                    <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Duration</div><div style="font-size:14px; font-weight:700; color:#f4f4f5; margin-top:4px;">{{ kbVideo.duration }}</div></div>
+                    <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Resolution</div><div style="font-size:14px; font-weight:700; color:#f4f4f5; margin-top:4px;">{{ kbVideo.resolution }}</div></div>
+                    <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Render Time</div><div style="font-size:14px; font-weight:700; color:#f4f4f5; margin-top:4px;">{{ kbVideo.renderTime }}</div></div>
+                    <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Cost</div><div style="font-size:14px; font-weight:700; color:#f4f4f5; margin-top:4px;">{{ kbVideo.cost }}</div></div>
+                  </div>
+                  <div style="font-size:12.5px; color:#a1a1aa;">Status: <span style="color:#e4e4e7; font-weight:600;">{{ kbVideo.status }}</span></div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ kbTabIs.qa }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:rgba(255,255,255,0.025); border-radius:10px;">
+                    <span style="font-size:12.5px; color:#d4d4d8;">Text / Subtitle Check</span>
+                    <span style="font-size:11.5px; font-weight:600; color:{{ kbQaColors.text }};">{{ kbQa.textCheck }}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:rgba(255,255,255,0.025); border-radius:10px;">
+                    <span style="font-size:12.5px; color:#d4d4d8;">Character Consistency</span>
+                    <span style="font-size:11.5px; font-weight:600; color:{{ kbQaColors.char }};">{{ kbQa.charCheck }}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:rgba(255,255,255,0.025); border-radius:10px;">
+                    <span style="font-size:12.5px; color:#d4d4d8;">Audio / Voice Sync</span>
+                    <span style="font-size:11.5px; font-weight:600; color:#22C55E;">{{ kbQa.audioCheck }}</span>
+                  </div>
+                  <div style="font-size:11.5px; color:#71717a; margin-top:6px;">{{ kbQa.reviewer }}</div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ kbTabIs.publish }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="font-size:11px; color:#71717a; font-weight:600;">SCHEDULED DATE</div>
+                    <div style="font-size:14px; font-weight:700; color:#f4f4f5;">{{ kbPublish.date }}</div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:8px;">
+                    <sc-for list="{{ kbPublish.platforms }}" as="p" hint-placeholder-count="4">
+                      <div style="display:flex; align-items:center; justify-content:space-between; padding:11px 14px; background:rgba(255,255,255,0.025); border-radius:10px;">
+                        <span style="font-size:12.5px; color:#d4d4d8;">{{ p.name }}</span>
+                        <span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:6px; background:{{ p.badgeBg }}; color:{{ p.badgeColor }};">{{ p.badgeLabel }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="font-size:12px; color:#71717a;">{{ kbPublish.status }}</div>
+                </div>
+              </sc-if>
+
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ stageDrawer }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeDrawer }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px); z-index:40; display:flex; justify-content:flex-end;">
+          <div onClick="{{ stopProp }}" style="width:400px; height:100%; background:#111214; border-left:1px solid rgba(255,255,255,0.08); padding:26px; overflow-y:auto; animation:fadeUp 0.25s ease;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:42px; height:42px; border-radius:11px; background:{{ stageDrawer.bg }}; display:flex; align-items:center; justify-content:center;">
+                  <i data-lucide="{{ stageDrawer.icon }}" style="width:19px; height:19px; color:{{ stageDrawer.color }};"></i>
+                </div>
+                <div>
+                  <div style="font-size:15px; font-weight:700; color:#fafafa;">{{ stageDrawer.label }}</div>
+                  <div style="font-size:11.5px; color:{{ stageDrawer.color }}; font-weight:600;">{{ stageDrawer.statusLabel }}</div>
+                </div>
+              </div>
+              <button onClick="{{ closeDrawer }}" style="width:28px; height:28px; border-radius:8px; background:rgba(255,255,255,0.05); border:none; color:#a1a1aa; cursor:pointer; display:flex; align-items:center; justify-content:center;"><i data-lucide="x" style="width:14px; height:14px;"></i></button>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
+              <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Avg Time</div><div style="font-size:16px; font-weight:700; color:#f4f4f5; margin-top:4px;">{{ stageDrawer.avgTime }}</div></div>
+              <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Throughput</div><div style="font-size:16px; font-weight:700; color:#f4f4f5; margin-top:4px;">{{ stageDrawer.throughput }}</div></div>
+              <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Provider</div><div style="font-size:16px; font-weight:700; color:#f4f4f5; margin-top:4px;">{{ stageDrawer.provider }}</div></div>
+              <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:12px;"><div style="font-size:10.5px; color:#71717a;">Cost / unit</div><div style="font-size:16px; font-weight:700; color:#f4f4f5; margin-top:4px;">{{ stageDrawer.cost }}</div></div>
+            </div>
+            <div style="font-size:11.5px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Recent Runs</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <sc-for list="{{ stageDrawer.runs }}" as="run" hint-placeholder-count="4">
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:rgba(255,255,255,0.025); border-radius:9px; font-size:12px;">
+                  <span style="color:#d4d4d8;">Kural #{{ run.kural }}</span>
+                  <span style="color:#71717a;">{{ run.time }}</span>
+                  <span style="color:{{ run.color }}; font-weight:600;">{{ run.status }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+</div>
+
+<sc-if value="{{ showGenerateModal }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeGenerate }}" style="position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(2px); z-index:50; display:flex; align-items:center; justify-content:center;">
+    <div onClick="{{ stopProp }}" style="width:440px; max-width:90vw; background:#111214; border:1px solid rgba(255,255,255,0.09); border-radius:16px; padding:24px; box-shadow:0 24px 60px rgba(0,0,0,0.55); animation:fadeUp 0.25s ease;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+        <div style="width:34px; height:34px; border-radius:9px; background:rgba(99,102,241,0.16); display:flex; align-items:center; justify-content:center;">
+          <i data-lucide="sparkles" style="width:16px; height:16px; color:#a5b4fc;"></i>
+        </div>
+        <div style="font-size:16px; font-weight:700; color:#fafafa;">Generate Video</div>
+      </div>
+      <p style="margin:0 0 18px 0; font-size:12.5px; color:#71717a;">Pick a kural and run it through the full pipeline — Education → Story → Director → Render.</p>
+      <div style="font-size:11px; font-weight:700; color:#71717a; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">Kural</div>
+      <select value="{{ genKuralNum }}" onChange="{{ onGenKuralChange }}" style="width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#e4e4e7; font-size:13px; padding:10px 12px; border-radius:9px; outline:none; margin-bottom:20px;">
+        <sc-for list="{{ genOptions }}" as="o" hint-placeholder-count="1">
+          <option value="{{ o.value }}">{{ o.text }}</option>
+        </sc-for>
+      </select>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button onClick="{{ closeGenerate }}" style="padding:9px 16px; border-radius:9px; border:1px solid rgba(255,255,255,0.09); background:transparent; color:#a1a1aa; font-size:12.5px; font-weight:600; cursor:pointer;">Cancel</button>
+        <button onClick="{{ startGeneration }}" style="padding:9px 18px; border-radius:9px; border:none; background:linear-gradient(135deg,#6366F1,#4f46e5); color:white; font-size:12.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">
+          <i data-lucide="{{ genIcon }}" style="width:14px; height:14px;"></i> {{ genButtonLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const NAV_SECTIONS = [
+  { label: 'Overview', items: [
+    { key: 'projects', label: 'Projects', icon: 'layout-grid' },
+    { key: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+  ]},
+  { label: 'Pipeline', items: [
+    { key: 'knowledge', label: 'Knowledge Base', icon: 'library', badge: '1330' },
+    { key: 'workflow', label: 'Workflow', icon: 'git-branch' },
+    { key: 'agents', label: 'Agents', icon: 'bot' },
+    { key: 'providers', label: 'Provider Manager', icon: 'server' },
+  ]},
+  { label: 'Content', items: [
+    { key: 'prompts', label: 'Prompt Library', icon: 'file-text' },
+    { key: 'characters', label: 'Characters', icon: 'users' },
+    { key: 'storyboards', label: 'Storyboards', icon: 'clapperboard' },
+    { key: 'videos', label: 'Videos', icon: 'video' },
+  ]},
+  { label: 'System', items: [
+    { key: 'settings', label: 'Settings', icon: 'settings' },
+  ]},
+];
+
+const VIEW_LABELS = {
+  dashboard: 'Dashboard', knowledge: 'Knowledge Base', workflow: 'Workflow', agents: 'Agents',
+  providers: 'Provider Manager', prompts: 'Prompt Library', characters: 'Characters',
+  storyboards: 'Storyboards', videos: 'Videos', reports: 'Reports', health: 'Health Dashboard', settings: 'Settings',
+  projects: 'Projects',
+};
+
+const PIPELINE_DEF = [
+  { key: 'knowledge', label: 'Knowledge', icon: 'library', status: 'success' },
+  { key: 'education', label: 'Education', icon: 'graduation-cap', status: 'success' },
+  { key: 'story', label: 'Story', icon: 'book-open', status: 'success' },
+  { key: 'director', label: 'Director', icon: 'clapperboard', status: 'success' },
+  { key: 'storyboard', label: 'Storyboard', icon: 'layout-grid', status: 'warning' },
+  { key: 'imagePrompt', label: 'Image Prompt', icon: 'image', status: 'success' },
+  { key: 'voice', label: 'Voice', icon: 'mic', status: 'success' },
+  { key: 'qa', label: 'QA', icon: 'shield-check', status: 'danger' },
+  { key: 'render', label: 'Render', icon: 'film', status: 'warning' },
+  { key: 'publish', label: 'Publish', icon: 'upload-cloud', status: 'success' },
+];
+
+const STATUS_COLORS = {
+  success: { color: '#22C55E', bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.35)', label: 'Healthy' },
+  warning: { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.35)', label: 'Degraded' },
+  danger: { color: '#EF4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.35)', label: 'Attention Needed' },
+};
+
+const VIDEO_STATS = [
+  { label: 'Videos Generated', value: '412', icon: 'video', iconColor: '#a5b4fc', iconBg: 'rgba(99,102,241,0.15)' },
+  { label: 'Videos Approved', value: '337', icon: 'check-circle-2', iconColor: '#5eead4', iconBg: 'rgba(20,184,166,0.15)' },
+  { label: 'Videos Published', value: '284', icon: 'upload-cloud', iconColor: '#86efac', iconBg: 'rgba(34,197,94,0.15)' },
+  { label: 'Avg Quality Score', value: '8.7/10', icon: 'star', iconColor: '#fcd34d', iconBg: 'rgba(245,158,11,0.15)' },
+  { label: 'Avg Cost / Video', value: '$0.18', icon: 'circle-dollar-sign', iconColor: '#fca5a5', iconBg: 'rgba(239,68,68,0.15)' },
+  { label: 'Avg Render Time', value: '4m 12s', icon: 'timer', iconColor: '#93c5fd', iconBg: 'rgba(99,102,241,0.15)' },
+];
+
+let KDATA = null;
+import('./thirukkural-data.js').then(m => { KDATA = m; });
+
+const STAGE_COLORS = {
+  queued: { bg: 'rgba(113,113,122,0.16)', color: '#a1a1aa' },
+  story_drafted: { bg: 'rgba(99,102,241,0.16)', color: '#a5b4fc' },
+  storyboard_ready: { bg: 'rgba(245,158,11,0.16)', color: '#fbbf24' },
+  video_ready: { bg: 'rgba(20,184,166,0.16)', color: '#5eead4' },
+  published: { bg: 'rgba(34,197,94,0.16)', color: '#4ade80' },
+};
+
+const WORKFLOW_DEF = [
+  { key: 'knowledge', name: 'Knowledge', icon: 'library', description: 'Loads the raw kural, chapter, and section from the corpus.', avgTime: '0.1s', status: 'success' },
+  { key: 'education', name: 'Education Agent', icon: 'graduation-cap', description: 'Produces a plain-language explanation of the couplet.', avgTime: '2.4s', status: 'success' },
+  { key: 'story', name: 'Story Agent', icon: 'book-open', description: 'Writes a short narrative that dramatizes the meaning.', avgTime: '3.1s', status: 'success' },
+  { key: 'director', name: 'Director Agent', icon: 'clapperboard', description: 'Breaks the story into shots, pacing, and camera direction.', avgTime: '2.8s', status: 'success' },
+  { key: 'storyboard', name: 'Storyboard', icon: 'layout-grid', description: 'Generates scene-by-scene storyboard frames.', avgTime: '4.2s', status: 'warning' },
+  { key: 'character', name: 'Character Memory', icon: 'users', description: 'Keeps character appearance consistent across scenes.', avgTime: '0.6s', status: 'success' },
+  { key: 'prompt', name: 'Image Prompt', icon: 'image', description: 'Builds the image-gen prompt for every shot.', avgTime: '1.4s', status: 'success' },
+  { key: 'optimizer', name: 'Prompt Optimizer', icon: 'wand-2', description: 'Refines prompts for likeness and style consistency.', avgTime: '1.1s', status: 'success' },
+  { key: 'voice', name: 'Voice', icon: 'mic', description: 'Synthesizes narration and character voice lines.', avgTime: '5.6s', status: 'success' },
+  { key: 'music', name: 'Music', icon: 'music', description: 'Selects and mixes a background score.', avgTime: '2.0s', status: 'success' },
+  { key: 'qa', name: 'QA', icon: 'shield-check', description: 'Checks text accuracy, character consistency, audio sync.', avgTime: '3.4s', status: 'danger' },
+  { key: 'subtitle', name: 'Subtitle', icon: 'captions', description: 'Generates burned-in and closed-caption subtitles.', avgTime: '0.9s', status: 'success' },
+  { key: 'thumbnail', name: 'Thumbnail', icon: 'image-plus', description: 'Creates the video thumbnail and title card.', avgTime: '1.7s', status: 'success' },
+  { key: 'metadata', name: 'Metadata', icon: 'tags', description: 'Writes title, description, and tags for publishing.', avgTime: '1.0s', status: 'success' },
+  { key: 'montage', name: 'OpenMontage', icon: 'film', description: 'Assembles all assets into the final render.', avgTime: '48s', status: 'warning' },
+  { key: 'render', name: 'Final MP4', icon: 'file-video', description: 'Encodes the final MP4 for delivery.', avgTime: '38s', status: 'success' },
+  { key: 'approval', name: 'Human Approval', icon: 'user-check', description: 'Awaits reviewer sign-off before going live.', avgTime: '4h avg', status: 'warning' },
+  { key: 'publish', name: 'Publish', icon: 'upload-cloud', description: 'Publishes to YouTube, Reels, TikTok, and Shorts.', avgTime: '12s', status: 'success' },
+];
+
+const AGENT_DEF = [
+  { key: 'knowledge', name: 'Knowledge Agent', icon: 'library', bg: 'rgba(99,102,241,0.15)', color: '#a5b4fc', avgTime: '0.1s', tokens: '—', cost: '$0.000', cacheHit: '100%', provider: 'SQLite', providerOptions: ['SQLite'] },
+  { key: 'education', name: 'Education Agent', icon: 'graduation-cap', bg: 'rgba(20,184,166,0.15)', color: '#5eead4', avgTime: '2.4s', tokens: '820', cost: '$0.000', cacheHit: '34%', provider: 'DeepSeek V3.1 (Free)', providerOptions: ['DeepSeek V3.1 (Free)', 'Qwen 3 (Free)', 'Gemini 2.5 Flash Lite (Free)'] },
+  { key: 'story', name: 'Story Agent', icon: 'book-open', bg: 'rgba(99,102,241,0.15)', color: '#a5b4fc', avgTime: '3.1s', tokens: '1,140', cost: '$0.000', cacheHit: '18%', provider: 'DeepSeek V3 (Free)', providerOptions: ['DeepSeek V3 (Free)', 'Qwen 3 (Free)', 'Claude Opus 4.6'] },
+  { key: 'director', name: 'Director Agent', icon: 'clapperboard', bg: 'rgba(245,158,11,0.15)', color: '#fbbf24', avgTime: '2.8s', tokens: '960', cost: '$0.000', cacheHit: '12%', provider: 'Qwen 3 (Free)', providerOptions: ['Qwen 3 (Free)', 'DeepSeek V3 (Free)'] },
+  { key: 'image', name: 'Image Agent', icon: 'image', bg: 'rgba(20,184,166,0.15)', color: '#5eead4', avgTime: '6.2s', tokens: '—', cost: '$0.024', cacheHit: '8%', provider: 'Flux Schnell', providerOptions: ['Flux Schnell', 'SDXL', 'Recraft V3'] },
+  { key: 'voice', name: 'Voice Agent', icon: 'mic', bg: 'rgba(239,68,68,0.15)', color: '#f87171', avgTime: '5.6s', tokens: '—', cost: '$0.011', cacheHit: '22%', provider: 'ElevenLabs', providerOptions: ['ElevenLabs', 'Hermes TTS', 'Azure TTS'] },
+  { key: 'qa', name: 'QA Agent', icon: 'shield-check', bg: 'rgba(34,197,94,0.15)', color: '#4ade80', avgTime: '3.4s', tokens: '640', cost: '$0.000', cacheHit: '41%', provider: 'Gemini 2.5 Flash Lite (Free)', providerOptions: ['Gemini 2.5 Flash Lite (Free)', 'Claude Opus 4.6', 'DeepSeek V3 (Free)'] },
+];
+
+const PROVIDER_ROWS_DEF = [
+  { stage: 'Knowledge', options: ['SQLite'], tier: 'Local', cost: '$0.00' },
+  { stage: 'Education', options: ['DeepSeek V3.1 (Free)', 'Qwen 3 (Free)', 'Gemini 2.5 Flash Lite (Free)'], tier: 'Free', cost: '$0.00' },
+  { stage: 'Story', options: ['DeepSeek V3 (Free)', 'Claude Opus 4.6'], tier: 'Free', cost: '$0.00' },
+  { stage: 'Director', options: ['Qwen 3 (Free)', 'DeepSeek V3 (Free)'], tier: 'Free', cost: '$0.00' },
+  { stage: 'Prompt', options: ['DeepSeek V3 (Free)', 'Qwen 3 (Free)'], tier: 'Free', cost: '$0.00' },
+  { stage: 'QA', options: ['Gemini 2.5 Flash Lite (Free)', 'Claude Opus 4.6'], tier: 'Free', cost: '$0.00' },
+  { stage: 'Production Review', options: ['Claude Opus 4.6', 'GPT-5.1'], tier: 'Optional', cost: '$4.80' },
+];
+
+const PROMPT_DEF = [
+  { key: 'education', name: 'Education Prompt', version: 4, updated: '2d ago', prevLine: 'You are a Tamil literature teacher.', newLine: 'You are a warm, plain-spoken Tamil literature teacher for a general audience.', body: 'Explain the kural in 2-3 sentences. Avoid academic jargon. Keep the meaning faithful to the commentary tradition.' },
+  { key: 'story', name: 'Story Prompt', version: 6, updated: '5h ago', prevLine: 'Write a 60 second story based on the kural.', newLine: 'Write a 60 second animated story that dramatizes the kural through one small, relatable moment.', body: 'Cast two characters from the roster. End on the moral landing softly, not preachy.' },
+  { key: 'director', name: 'Director Prompt', version: 2, updated: '1w ago', prevLine: 'Break the story into scenes.', newLine: 'Break the story into 5 scenes with shot type, pacing, and camera direction.', body: 'Keep total runtime at 60 seconds. Reserve the final 8 seconds for the verse card.' },
+  { key: 'image', name: 'Image Prompt', version: 9, updated: '3d ago', prevLine: 'Describe the scene for image generation.', newLine: 'Describe the scene, characters, lighting, and style for image generation in painterly folk-art style.', body: 'Always include character reference tags for consistency.' },
+  { key: 'voice', name: 'Voice Prompt', version: 3, updated: '4d ago', prevLine: 'Narrate in a neutral tone.', newLine: 'Narrate warmly, like an elder telling a story to a child.', body: 'Pace: 145 words per minute. Pause 400ms before the verse reveal.' },
+  { key: 'qa', name: 'QA Prompt', version: 5, updated: '6h ago', prevLine: 'Check subtitle accuracy.', newLine: 'Check subtitle accuracy, character consistency, and audio sync against the source kural.', body: 'Flag anything below 90% confidence for human review.' },
+];
+
+const CHARACTER_DEF = [
+  { name: 'Old Wise Man', description: 'The recurring narrator archetype — grounded, patient, speaks in parables.' },
+  { name: 'Village Boy', description: 'Curious and impulsive; often the one who needs the lesson.' },
+  { name: 'Village Girl', description: 'Observant and quick-witted; frequently the voice of reason.' },
+  { name: 'Mother', description: 'Warm authority figure representing home and duty.' },
+  { name: 'Farmer', description: 'Grounded in labor and the land; embodies patience and honest work.' },
+  { name: 'King', description: 'Represents power, justice, and the burden of rule.' },
+  { name: 'Teacher', description: 'Formal educator archetype, distinct from the Old Wise Man\u2019s folk wisdom.' },
+  { name: 'Merchant', description: 'Represents wealth, trade, and the ethics of commerce.' },
+];
+
+const KB_TABS = [
+  { key: 'overview', label: 'Kural' }, { key: 'story', label: 'Story' }, { key: 'script', label: 'Script' },
+  { key: 'images', label: 'Images' }, { key: 'video', label: 'Video' }, { key: 'qa', label: 'QA' }, { key: 'publish', label: 'Publish' },
+];
+
+class Component extends DCLogic {
+  state = {
+    view: 'dashboard',
+    selectedModel: 'DeepSeek V3.1 (Free)',
+    stageDrawer: null,
+    kbSearch: '', kbBook: 'all', kbChapter: 'all', kbPage: 0,
+    kbDetailNum: null, kbTab: 'overview',
+    providerOverrides: {}, promptTab: 'education', promptShowDiff: false,
+    settingsProfile: 'Free Profile', settingsEnv: 'Development',
+    headerMenu: null, globalSearch: '', showGenerateModal: false, genKuralNum: null, genStarted: false,
+  };
+
+  dailyChart = null;
+  costChart = null;
+  tokenChart = null;
+  cacheChart = null;
+  qualityChart = null;
+  durationChart = null;
+
+  componentDidMount() {
+    if (window.lucide) window.lucide.createIcons();
+    if (!KDATA) import('./thirukkural-data.js').then(m => { KDATA = m; this.forceUpdate(); });
+  }
+  componentDidUpdate() {
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  setView(key) {
+    this.setState({ view: key, headerMenu: null });
+  }
+
+  toggleHeaderMenu(name) {
+    this.setState(s => ({ headerMenu: s.headerMenu === name ? null : name }));
+  }
+
+  openGenerate() {
+    const first = KDATA ? KDATA.getAllKurals()[0] : null;
+    this.setState({ showGenerateModal: true, genKuralNum: first ? first.num : 1, genStarted: false, headerMenu: null });
+  }
+
+  startGeneration() {
+    this.setState({ genStarted: true });
+    setTimeout(() => {
+      this.setState({ showGenerateModal: false, view: 'knowledge', kbDetailNum: this.state.genKuralNum, kbTab: 'script' });
+    }, 900);
+  }
+
+  openStage(def) {
+    const sc = STATUS_COLORS[def.status];
+    this.setState({
+      stageDrawer: {
+        ...def, ...sc, statusLabel: sc.label,
+        avgTime: (Math.random() * 3 + 0.5).toFixed(1) + 's',
+        throughput: Math.floor(Math.random() * 40 + 60) + '/hr',
+        provider: ['DeepSeek V3.1', 'Qwen 3', 'Gemini 2.5 Flash Lite', 'SQLite', 'FFmpeg'][Math.floor(Math.random() * 5)],
+        cost: '$' + (Math.random() * 0.05).toFixed(4),
+        runs: [1, 2, 3, 4].map(() => ({
+          kural: Math.floor(Math.random() * 1330) + 1,
+          time: Math.floor(Math.random() * 50 + 5) + 's ago',
+          status: Math.random() > 0.15 ? 'Done' : 'Retrying',
+          color: Math.random() > 0.15 ? '#22C55E' : '#F59E0B',
+        })),
+      },
+    });
+  }
+
+  initDailyChart(node) {
+    if (!node || (this.dailyChart && this.dailyChart.canvas === node)) return;
+    if (this.dailyChart) { this.dailyChart.destroy(); this.dailyChart = null; }
+    {
+      this.dailyChart = new Chart(node, {
+      type: 'bar',
+      data: {
+        labels: Array.from({ length: 14 }, (_, i) => 'D' + (i + 1)),
+        datasets: [{
+          data: [12, 18, 14, 22, 19, 26, 21, 30, 24, 28, 33, 27, 31, 36],
+          backgroundColor: 'rgba(99,102,241,0.55)',
+          borderRadius: 5, maxBarThickness: 18,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 10 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 10 } } },
+        },
+      },
+      });
+    }
+  }
+
+  initCostChart(node) {
+    if (!node || (this.costChart && this.costChart.canvas === node)) return;
+    if (this.costChart) { this.costChart.destroy(); this.costChart = null; }
+    {
+      this.costChart = new Chart(node, {
+      type: 'doughnut',
+      data: {
+        labels: ['Story', 'Image', 'Voice', 'QA', 'Render'],
+        datasets: [{
+          data: [18, 34, 22, 8, 18],
+          backgroundColor: ['#6366F1', '#14B8A6', '#8b5cf6', '#F59E0B', '#22C55E'],
+          borderColor: '#111827', borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', boxWidth: 10, font: { size: 10.5 }, padding: 12 } } },
+      },
+      });
+    }
+  }
+
+  initTokenChart(node) {
+    if (!node || this.tokenChart) return;
+    setTimeout(() => {
+      if (this.tokenChart) return;
+      this.tokenChart = new Chart(node, {
+      type: 'bar',
+      data: {
+        labels: ['Education', 'Story', 'Director', 'Prompt', 'QA'],
+        datasets: [{ data: [820, 1140, 960, 540, 640], backgroundColor: 'rgba(20,184,166,0.55)', borderRadius: 5, maxBarThickness: 26 }],
+      },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } },
+        scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 10 } } }, y: { grid: { display: false }, ticks: { color: '#a1a1aa', font: { size: 10.5 } } } } },
+      });
+    });
+  }
+  initCacheChart(node) {
+    if (!node || this.cacheChart) return;
+    setTimeout(() => {
+      if (this.cacheChart) return;
+      this.cacheChart = new Chart(node, {
+      type: 'line',
+      data: { labels: Array.from({ length: 14 }, (_, i) => 'D' + (i + 1)),
+        datasets: [{ data: [12, 15, 18, 20, 19, 24, 27, 25, 29, 31, 30, 33, 35, 34], borderColor: '#6366F1', backgroundColor: 'rgba(99,102,241,0.15)', fill: true, tension: 0.35, pointRadius: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } },
+        scales: { x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 10 } } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 10 } } } } },
+      });
+    });
+  }
+  initQualityChart(node) {
+    if (!node || this.qualityChart) return;
+    setTimeout(() => {
+      if (this.qualityChart) return;
+      this.qualityChart = new Chart(node, {
+      type: 'line',
+      data: { labels: Array.from({ length: 14 }, (_, i) => 'D' + (i + 1)),
+        datasets: [{ data: [8.1, 8.2, 8.4, 8.3, 8.5, 8.6, 8.5, 8.7, 8.8, 8.6, 8.9, 8.7, 8.8, 8.7], borderColor: '#22C55E', backgroundColor: 'rgba(34,197,94,0.15)', fill: true, tension: 0.35, pointRadius: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } },
+        scales: { x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 10 } } }, y: { min: 7, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 10 } } } } },
+      });
+    });
+  }
+  initDurationChart(node) {
+    if (!node || this.durationChart) return;
+    setTimeout(() => {
+      if (this.durationChart) return;
+      this.durationChart = new Chart(node, {
+      type: 'doughnut',
+      data: { labels: ['Story/Script', 'Images', 'Voice/Music', 'Render', 'QA'],
+        datasets: [{ data: [22, 30, 20, 20, 8], backgroundColor: ['#6366F1', '#14B8A6', '#8b5cf6', '#F59E0B', '#EF4444'], borderColor: '#111827', borderWidth: 2 }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { position: 'bottom', labels: { color: '#a1a1aa', boxWidth: 10, font: { size: 10.5 }, padding: 12 } } } },
+      });
+    });
+  }
+
+  renderVals() {
+    const view = this.state.view;
+    const viewIs = {};
+    Object.keys(VIEW_LABELS).forEach(k => { viewIs[k] = view === k; });
+
+    const navSections = NAV_SECTIONS.map(sec => ({
+      label: sec.label,
+      items: sec.items.map(it => ({
+        ...it,
+        onClick: () => this.setView(it.key),
+        style: `display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; margin-bottom:1px; transition:background 0.15s; color:${view === it.key ? '#f4f4f5' : '#a1a1aa'}; background:${view === it.key ? 'rgba(99,102,241,0.14)' : 'transparent'}; ${view === it.key ? 'box-shadow: inset 2px 0 0 #6366F1;' : ''}`,
+      })),
+    }));
+
+    const healthDots = Array.from({ length: 8 }, (_, i) => ({
+      style: `width:16px; height:6px; border-radius:3px; background:${i < 7 ? '#22C55E' : '#F59E0B'};`,
+    }));
+
+    const pipelineStages = PIPELINE_DEF.map((def, i) => {
+      const sc = STATUS_COLORS[def.status];
+      return {
+        ...def, ...sc,
+        pulse: def.status !== 'success' ? 'animation:pulseDot 1.4s ease-in-out infinite;' : '',
+        hasNext: i < PIPELINE_DEF.length - 1,
+        onClick: () => this.openStage(def),
+      };
+    });
+
+    let stageDrawer = null;
+    if (this.state.stageDrawer) {
+      stageDrawer = this.state.stageDrawer;
+    }
+
+    // ---------- Knowledge Base ----------
+    let kbVals = {
+      kbSearch: this.state.kbSearch, onKbSearch: (e) => this.setState({ kbSearch: e.target.value, kbPage: 0 }),
+      kbBook: this.state.kbBook, onKbBook: (e) => this.setState({ kbBook: e.target.value, kbChapter: 'all', kbPage: 0 }),
+      kbChapter: this.state.kbChapter, onKbChapter: (e) => this.setState({ kbChapter: e.target.value, kbPage: 0 }),
+      kbChapterOptions: [], kbPageItems: [], kbFilteredCount: 0, kbRangeText: '0–0', kbPageDisplay: 1, kbPageCount: 1,
+      kbProcessedPct: 0, kbPrevPage: () => {}, kbNextPage: () => {},
+      kbDetail: null, kbTabs: [], kbTabIs: {}, kbStory: {}, kbScript: [], kbImages: [], kbVideo: {}, kbQa: {}, kbQaColors: {}, kbPublish: {},
+      closeKbDetail: () => this.setState({ kbDetailNum: null }),
+    };
+
+    if (KDATA) {
+      const all = KDATA.getAllKurals();
+      const chapterOptions = KDATA.CHAPTERS
+        .filter(c => this.state.kbBook === 'all' || c.book === this.state.kbBook)
+        .map(c => ({ value: String(c.num), text: `${c.num}. ${c.tamil}` }));
+
+      const q = this.state.kbSearch.trim().toLowerCase();
+      const filtered = all.filter(k => {
+        if (this.state.kbBook !== 'all' && k.book !== this.state.kbBook) return false;
+        if (this.state.kbChapter !== 'all' && String(k.chapterNum) !== this.state.kbChapter) return false;
+        if (q) {
+          const hay = (String(k.num) + ' ' + k.chapterTamil + ' ' + k.chapterEnglish + ' ' + (k.english || '')).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const PAGE_SIZE = 24;
+      const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      const page = Math.min(this.state.kbPage, pageCount - 1);
+      const start = page * PAGE_SIZE;
+      const pageSlice = filtered.slice(start, start + PAGE_SIZE);
+
+      const processedCount = all.filter(k => k.storyStage !== 'queued').length;
+
+      kbVals = {
+        ...kbVals,
+        kbChapterOptions: chapterOptions,
+        kbFilteredCount: filtered.length,
+        kbRangeText: filtered.length ? `${start + 1}–${Math.min(start + PAGE_SIZE, filtered.length)}` : '0–0',
+        kbPageDisplay: page + 1,
+        kbPageCount: pageCount,
+        kbProcessedPct: Math.round((processedCount / 1330) * 100),
+        kbPrevPage: () => this.setState({ kbPage: Math.max(0, page - 1) }),
+        kbNextPage: () => this.setState({ kbPage: Math.min(pageCount - 1, page + 1) }),
+        kbPageItems: pageSlice.map(k => {
+          const sc = STAGE_COLORS[k.storyStage];
+          return {
+            ...k, stageBg: sc.bg, stageColor: sc.color,
+            tamilPreview: k.tamil ? k.tamil.join(' ') : `Ch. ${k.chapterNum} · ${k.chapterEnglish}`,
+            onClick: () => this.setState({ kbDetailNum: k.num, kbTab: 'overview' }),
+          };
+        }),
+      };
+
+      if (this.state.kbDetailNum) {
+        const k = all[this.state.kbDetailNum - 1];
+        const tab = this.state.kbTab;
+        const kbTabIs = {};
+        KB_TABS.forEach(t => { kbTabIs[t.key] = t.key === tab; });
+        const story = KDATA.generateStory(k);
+        const qa = KDATA.generateQaPlan(k);
+        const pub = KDATA.generatePublishPlan(k);
+
+        kbVals.kbDetail = { ...k, tamilLine1: k.tamil ? k.tamil[0] : '', tamilLine2: k.tamil ? k.tamil[1] : '' };
+        kbVals.kbTabIs = kbTabIs;
+        kbVals.kbTabs = KB_TABS.map(t => ({
+          ...t,
+          onClick: () => this.setState({ kbTab: t.key }),
+          style: `padding:10px 4px; margin-right:20px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; color:${t.key === tab ? '#f4f4f5' : '#71717a'}; border-bottom:2px solid ${t.key === tab ? '#6366F1' : 'transparent'};`,
+        }));
+        kbVals.kbStory = story;
+        kbVals.kbScript = KDATA.generateScript(k);
+        kbVals.kbImages = KDATA.generateImagePlan(k);
+        kbVals.kbVideo = KDATA.generateVideoPlan(k);
+        kbVals.kbQa = qa;
+        kbVals.kbQaColors = { text: qa.pass ? '#22C55E' : '#F59E0B', char: qa.charCheck.startsWith('Pass') ? '#22C55E' : '#F59E0B' };
+        kbVals.kbPublish = {
+          ...pub,
+          platforms: pub.platforms.map(p => ({
+            ...p,
+            badgeLabel: p.live ? 'Live' : 'Pending',
+            badgeBg: p.live ? 'rgba(34,197,94,0.16)' : 'rgba(113,113,122,0.16)',
+            badgeColor: p.live ? '#4ade80' : '#a1a1aa',
+          })),
+        };
+      }
+    }
+
+    // ---------- Workflow ----------
+    const workflowStages = WORKFLOW_DEF.map((wf, i) => {
+      const sc = STATUS_COLORS[wf.status];
+      return { ...wf, ...sc, statusLabel: sc.label, hasNext: i < WORKFLOW_DEF.length - 1 };
+    });
+
+    // ---------- Videos ----------
+    let vidVals = { vidSearch: this.state.vidSearch || '', vidStatus: this.state.vidStatus || 'all', vidCount: 0, vidItems: [] };
+    vidVals.onVidSearch = (e) => this.setState({ vidSearch: e.target.value });
+    vidVals.onVidStatus = (e) => this.setState({ vidStatus: e.target.value });
+    if (KDATA) {
+      const all = KDATA.getAllKurals().filter(k => k.storyStage === 'video_ready' || k.storyStage === 'published');
+      const q = (this.state.vidSearch || '').trim().toLowerCase();
+      const vFiltered = all.filter(k => {
+        if (this.state.vidStatus && this.state.vidStatus !== 'all' && k.storyStage !== this.state.vidStatus) return false;
+        if (q && !((String(k.num) + ' ' + k.chapterEnglish).toLowerCase().includes(q))) return false;
+        return true;
+      });
+      vidVals.vidCount = vFiltered.length;
+      vidVals.vidItems = vFiltered.slice(0, 30).map(k => {
+        const sc = STAGE_COLORS[k.storyStage];
+        const vp = KDATA.generateVideoPlan(k);
+        return {
+          ...k, stageBg: sc.bg, stageColor: sc.color, duration: vp.duration, quality: vp.quality || '—',
+          createdText: (seeded(k.num, 6) + 1) + 'd ago', showApprove: k.storyStage === 'video_ready', showPublish: k.storyStage === 'video_ready',
+        };
+      });
+    }
+    function seeded(num, mod) { return (num * 2654435761 % 2147483647) % mod; }
+
+    // ---------- Agents ----------
+    const agentProviders = this.state.agentProviders || {};
+    const agentCards = AGENT_DEF.map(a => ({
+      ...a,
+      statusDot: '#22C55E',
+      provider: agentProviders[a.key] || a.provider,
+      onProviderChange: (e) => this.setState({ agentProviders: { ...agentProviders, [a.key]: e.target.value } }),
+    }));
+
+    // ---------- Providers ----------
+    const providerOverrides = this.state.providerOverrides;
+    const providerRows = PROVIDER_ROWS_DEF.map(r => ({
+      ...r,
+      provider: providerOverrides[r.stage] || r.options[0],
+      onChange: (e) => this.setState({ providerOverrides: { ...providerOverrides, [r.stage]: e.target.value } }),
+      tierBg: r.tier === 'Free' ? 'rgba(34,197,94,0.14)' : r.tier === 'Local' ? 'rgba(99,102,241,0.14)' : 'rgba(245,158,11,0.14)',
+      tierColor: r.tier === 'Free' ? '#4ade80' : r.tier === 'Local' ? '#a5b4fc' : '#fbbf24',
+    }));
+
+    // ---------- Prompts ----------
+    const promptTab = this.state.promptTab;
+    const promptList = PROMPT_DEF.map(p => ({
+      ...p, onClick: () => this.setState({ promptTab: p.key }),
+      bg: p.key === promptTab ? 'rgba(99,102,241,0.14)' : 'transparent',
+      color: p.key === promptTab ? '#f4f4f5' : '#a1a1aa',
+    }));
+    const promptSelected = PROMPT_DEF.find(p => p.key === promptTab) || PROMPT_DEF[0];
+
+    // ---------- Characters ----------
+    const characterCards = CHARACTER_DEF.map((c, i) => ({ ...c, consistency: 94 + (i % 5) }));
+
+    // ---------- Storyboards ----------
+    let storyboardRows = [];
+    if (KDATA) {
+      storyboardRows = KDATA.getAllKurals().slice(0, 4).map(k => ({ num: k.num, chapterEnglish: k.chapterEnglish, frames: [1, 2, 3, 4, 5] }));
+    }
+
+    // ---------- Health ----------
+    const healthServices = [
+      { name: 'SQLite', latency: '2ms', status: 'PASS', dot: '#22C55E' },
+      { name: 'JSON Store', latency: '4ms', status: 'PASS', dot: '#22C55E' },
+      { name: 'OpenRouter', latency: '340ms', status: 'PASS', dot: '#22C55E' },
+      { name: 'Hermes', latency: '512ms', status: 'PASS', dot: '#22C55E' },
+      { name: 'OpenMontage', latency: '1.2s', status: 'PASS', dot: '#22C55E' },
+      { name: 'FFmpeg', latency: '38ms', status: 'PASS', dot: '#22C55E' },
+      { name: 'Image Provider', latency: '2.1s', status: 'DEGRADED', dot: '#F59E0B' },
+      { name: 'TTS Provider', latency: '890ms', status: 'PASS', dot: '#22C55E' },
+    ];
+
+    // ---------- Settings ----------
+    const settingsProfiles = ['Free Profile', 'Hermes Profile'].map(label => ({
+      label, onClick: () => this.setState({ settingsProfile: label }),
+      style: `padding:8px 16px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:600; background:${this.state.settingsProfile === label ? 'rgba(99,102,241,0.16)' : 'rgba(255,255,255,0.04)'}; color:${this.state.settingsProfile === label ? '#a5b4fc' : '#a1a1aa'}; border:1px solid ${this.state.settingsProfile === label ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.07)'};`,
+    }));
+    const settingsEnvs = ['Development', 'Production'].map(label => ({
+      label, onClick: () => this.setState({ settingsEnv: label }),
+      style: `padding:8px 16px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:600; background:${this.state.settingsEnv === label ? 'rgba(20,184,166,0.16)' : 'rgba(255,255,255,0.04)'}; color:${this.state.settingsEnv === label ? '#5eead4' : '#a1a1aa'}; border:1px solid ${this.state.settingsEnv === label ? 'rgba(20,184,166,0.3)' : 'rgba(255,255,255,0.07)'};`,
+    }));
+    const apiKeyRows = [
+      { name: 'OpenRouter', masked: 'sk-or-••••••••4f2a' },
+      { name: 'ElevenLabs', masked: '••••••••••••9b1c' },
+      { name: 'Flux (Image)', masked: '••••••••••••7e3d' },
+      { name: 'OpenMontage', masked: 'local — no key required' },
+    ];
+
+    // ---------- Global search (header) ----------
+    const gq = (this.state.globalSearch || '').trim().toLowerCase();
+    let searchResults = [];
+    if (gq && KDATA) {
+      searchResults = KDATA.getAllKurals()
+        .filter(k => (String(k.num) + ' ' + k.chapterTamil + ' ' + k.chapterEnglish + ' ' + (k.english || '')).toLowerCase().includes(gq))
+        .slice(0, 6)
+        .map(k => ({
+          num: k.num, chapterEnglish: k.chapterEnglish,
+          preview: k.tamil ? k.tamil[0] : k.chapterEnglish,
+          onClick: () => this.setState({ view: 'knowledge', kbDetailNum: k.num, kbTab: 'overview', globalSearch: '' }),
+        }));
+    }
+    const searchOpen = gq.length > 0;
+    const searchNoResults = searchOpen && searchResults.length === 0;
+
+    // ---------- Header menus ----------
+    const headerMenu = this.state.headerMenu;
+    const profileMenuOpen = headerMenu === 'profile';
+    const projectMenuOpen = headerMenu === 'project';
+    const goSettings = () => this.setState({ view: 'settings', headerMenu: null });
+    const goReports = () => this.setState({ view: 'reports', headerMenu: null });
+    const goHealth = () => this.setState({ view: 'health', headerMenu: null });
+
+    // ---------- Generate modal ----------
+    const genOptions = KDATA ? KDATA.getAllKurals().slice(0, 60).map(k => ({ value: String(k.num), text: `Kural ${k.num} — ${k.chapterEnglish}` })) : [];
+
+    return {
+      ...kbVals,
+      workflowStages,
+      ...vidVals,
+      agentCards,
+      providerRows,
+      promptList, promptSelected,
+      promptShowDiff: this.state.promptShowDiff,
+      promptShowEdit: !this.state.promptShowDiff,
+      promptDiffLabel: this.state.promptShowDiff ? 'Edit' : 'View Diff',
+      promptToggleDiff: () => this.setState({ promptShowDiff: !this.state.promptShowDiff }),
+      characterCards,
+      storyboardRows,
+      healthServices,
+      settingsProfiles, settingsEnvs, apiKeyRows,
+      tokenChartRef: (node) => this.initTokenChart(node),
+      cacheChartRef: (node) => this.initCacheChart(node),
+      qualityChartRef: (node) => this.initQualityChart(node),
+      durationChartRef: (node) => this.initDurationChart(node),
+      navSections,
+      currentViewLabel: VIEW_LABELS[view],
+      selectedModel: this.state.selectedModel,
+      onModelChange: (e) => this.setState({ selectedModel: e.target.value }),
+      viewIs,
+      healthDots,
+      videoStats: VIDEO_STATS,
+      pipelineStages,
+      dailyChartRef: (node) => this.initDailyChart(node),
+      costChartRef: (node) => this.initCostChart(node),
+      stageDrawer,
+      closeDrawer: () => this.setState({ stageDrawer: null }),
+      stopProp: (e) => e.stopPropagation(),
+
+      globalSearch: this.state.globalSearch,
+      onGlobalSearch: (e) => this.setState({ globalSearch: e.target.value }),
+      searchResults, searchOpen, searchHasResults: searchResults.length > 0, searchNoResults,
+      clearSearch: () => this.setState({ globalSearch: '' }),
+
+      toggleProjectMenu: () => this.toggleHeaderMenu('project'),
+      toggleProfileMenu: () => this.toggleHeaderMenu('profile'),
+      closeHeaderMenu: () => this.setState({ headerMenu: null }),
+      profileMenuOpen, projectMenuOpen, headerMenuOpen: !!headerMenu,
+      settingsEnv: this.state.settingsEnv,
+      setEnvDev: () => this.setState({ settingsEnv: 'Development' }),
+      setEnvProd: () => this.setState({ settingsEnv: 'Production' }),
+      envIsDev: this.state.settingsEnv === 'Development',
+      envDevBg: this.state.settingsEnv === 'Development' ? 'rgba(99,102,241,0.18)' : 'transparent',
+      envDevColor: this.state.settingsEnv === 'Development' ? '#c7d2fe' : '#71717a',
+      envProdBg: this.state.settingsEnv === 'Production' ? 'rgba(99,102,241,0.18)' : 'transparent',
+      envProdColor: this.state.settingsEnv === 'Production' ? '#c7d2fe' : '#71717a',
+      goSettings,
+      goReports, goHealth,
+      goSettingsFromProject: goSettings,
+
+      openGenerate: () => this.openGenerate(),
+      showGenerateModal: this.state.showGenerateModal,
+      genKuralNum: this.state.genKuralNum,
+      onGenKuralChange: (e) => this.setState({ genKuralNum: Number(e.target.value) }),
+      genOptions,
+      genStarted: this.state.genStarted,
+      genButtonLabel: this.state.genStarted ? 'Starting pipeline…' : 'Start Pipeline',
+      genIcon: this.state.genStarted ? 'loader-circle' : 'play',
+      closeGenerate: () => this.setState({ showGenerateModal: false }),
+      startGeneration: () => this.startGeneration(),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

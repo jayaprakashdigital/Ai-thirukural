@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Tamil:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * { box-sizing:border-box; font-family:'Inter',sans-serif; }
+    body { margin:0; background:#09090B; }
+    a.project-card { text-decoration:none; display:block; transition:transform 0.15s ease, border-color 0.15s ease; }
+    a.project-card:hover { transform:translateY(-3px); border-color:rgba(255,255,255,0.18) !important; }
+    a { color:#a5b4fc; }
+    a:hover { color:#c7d2fe; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(99,102,241,0.16), transparent), #09090B; color:#e4e4e7; padding:64px 32px 80px 32px;">
+  <div style="max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:48px;">
+
+    <div style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px;">
+      <div style="width:52px; height:52px; border-radius:14px; background:linear-gradient(135deg,#6366F1,#14B8A6); display:flex; align-items:center; justify-content:center;">
+        <i data-lucide="layout-grid" style="width:24px; height:24px; color:white;"></i>
+      </div>
+      <h1 style="margin:0; font-size:32px; font-weight:800; color:#fafafa; letter-spacing:-0.02em;">AI Content Studios</h1>
+      <p style="margin:0; font-size:14.5px; color:#71717a; max-width:480px; line-height:1.6;">Every automated content factory in this workspace, in one place.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+      <a class="project-card" href="AI Thirukkural Studio.dc.html" style="border-radius:18px; padding:26px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.08);">
+        <div style="width:46px; height:46px; border-radius:12px; background:linear-gradient(135deg,#6366F1,#14B8A6); display:flex; align-items:center; justify-content:center; margin-bottom:18px; font-weight:800; font-size:14px; color:white;">குறள்</div>
+        <div style="font-size:17px; font-weight:800; color:#fafafa; margin-bottom:6px;">AI Thirukkural Studio</div>
+        <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:20px; line-height:1.6;">Converts all 1,330 Thirukkurals into educational Tamil videos — verse to publish.</div>
+        <div style="display:flex; gap:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
+          <div><div style="font-size:17px; font-weight:700; color:#f4f4f5;">1,330</div><div style="font-size:10.5px; color:#71717a;">Kurals</div></div>
+          <div><div style="font-size:17px; font-weight:700; color:#f4f4f5;">284</div><div style="font-size:10.5px; color:#71717a;">Published</div></div>
+          <div style="margin-left:auto; align-self:center; display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:#a5b4fc;">Open <i data-lucide="arrow-right" style="width:13px; height:13px;"></i></div>
+        </div>
+      </a>
+
+      <a class="project-card" href="JP Personal AI Studio.dc.html" style="border-radius:18px; padding:26px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.08);">
+        <div style="width:46px; height:46px; border-radius:12px; overflow:hidden; margin-bottom:18px;"><img src="jp-logo-mark.png" style="width:100%; height:100%; object-fit:cover;" /></div>
+        <div style="font-size:17px; font-weight:800; color:#fafafa; margin-bottom:6px;">JP Personal AI Studio</div>
+        <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:20px; line-height:1.6;">Daily AI &amp; digital-marketing content for Instagram, YouTube and TikTok.</div>
+        <div style="display:flex; gap:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
+          <div><div style="font-size:17px; font-weight:700; color:#f4f4f5;">{{ jpPublished }}</div><div style="font-size:10.5px; color:#71717a;">Published</div></div>
+          <div><div style="font-size:17px; font-weight:700; color:#f4f4f5;">{{ jpStreak }}</div><div style="font-size:10.5px; color:#71717a;">Day streak</div></div>
+          <div style="margin-left:auto; align-self:center; display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:#f0abfc;">Open <i data-lucide="arrow-right" style="width:13px; height:13px;"></i></div>
+        </div>
+      </a>
+
+      <a class="project-card" href="AI Tamil News Studio.dc.html" style="border-radius:18px; padding:26px; background:rgba(17,24,39,0.55); border:1px solid rgba(255,255,255,0.08);">
+        <div style="width:46px; height:46px; border-radius:12px; overflow:hidden; margin-bottom:18px;"><img src="tn-logo-mark.png" style="width:100%; height:100%; object-fit:cover;" /></div>
+        <div style="font-size:17px; font-weight:800; color:#fafafa; margin-bottom:6px;">AI Tamil News Studio</div>
+        <div style="font-size:12.5px; color:#a1a1aa; margin-bottom:20px; line-height:1.6;">Pulls daily stories from Tamil news sites and turns them into short AI news videos.</div>
+        <div style="display:flex; gap:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
+          <div><div style="font-size:17px; font-weight:700; color:#f4f4f5;">{{ tnArticles }}</div><div style="font-size:10.5px; color:#71717a;">Articles/mo</div></div>
+          <div><div style="font-size:17px; font-weight:700; color:#f4f4f5;">{{ tnPublished }}</div><div style="font-size:10.5px; color:#71717a;">Published</div></div>
+          <div style="margin-left:auto; align-self:center; display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:#7dd3fc;">Open <i data-lucide="arrow-right" style="width:13px; height:13px;"></i></div>
+        </div>
+      </a>
+    </div>
+
+    <div style="text-align:center; font-size:11.5px; color:#3f3f46;">3 projects · workspace overview</div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+let JPDATA = null, TNDATA = null;
+import('./jp-data.js').then(m => { JPDATA = m; });
+import('./tn-data.js').then(m => { TNDATA = m; });
+
+class Component extends DCLogic {
+  componentDidMount() {
+    if (window.lucide) window.lucide.createIcons();
+    if (!JPDATA) import('./jp-data.js').then(m => { JPDATA = m; this.forceUpdate(); });
+    if (!TNDATA) import('./tn-data.js').then(m => { TNDATA = m; this.forceUpdate(); });
+  }
+  componentDidUpdate() { if (window.lucide) window.lucide.createIcons(); }
+
+  renderVals() {
+    let jpPublished = 5, jpStreak = 4, tnArticles = 24, tnPublished = 5;
+    if (JPDATA) {
+      jpPublished = JPDATA.DAILY_ENTRIES.filter(e => e.status === 'published').length;
+      let streak = 0;
+      for (let d = JPDATA.TODAY_DAY - 1; d >= 1; d--) {
+        const e = JPDATA.DAILY_ENTRIES.find(x => x.day === d);
+        if (e && e.status === 'published') streak++; else if (e) break;
+      }
+      jpStreak = streak;
+    }
+    if (TNDATA) {
+      tnArticles = TNDATA.ARTICLES.length;
+      tnPublished = TNDATA.ARTICLES.filter(a => a.status === 'published').length;
+    }
+    return { jpPublished, jpStreak, tnArticles, tnPublished };
+  }
+}
+
+</script>
+</body>
+</html>
