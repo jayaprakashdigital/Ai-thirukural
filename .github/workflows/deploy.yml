@@ -17,5 +17,6 @@ jobs:
           script: |
             cd /root/jp-ai-content-studios
             git pull origin main
-            docker compose down
+            docker compose down || true
             docker compose up --build -d
+          command_timeout: 5m
