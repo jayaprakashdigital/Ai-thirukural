@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Content Studios</title>
+<meta name="description" content="Workspace home for every automated content studio: AI Thirukkural Studio, JP Personal AI Studio, AI Tamil News Studio.">
+
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Tamil:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #09090B;
+    --surface: rgba(17,24,39,0.55);
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #e4e4e7;
+    --text-strong: #fafafa;
+    --text-muted: #a1a1aa;
+    --text-faint: #71717a;
+    --text-footer: #3f3f46;
+    --gradient: linear-gradient(135deg, #6366F1, #14B8A6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(99,102,241,0.16), transparent),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    padding: 64px 32px 80px;
+  }
+
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .hero {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .hero-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-icon svg { width: 24px; height: 24px; color: #fff; }
+
+  .hero h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-strong);
+    letter-spacing: -0.02em;
+  }
+
+  .hero p {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--text-faint);
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  .studio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .studio-card {
+    border-radius: 18px;
+    padding: 26px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    display: block;
+    color: inherit;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+
+  .studio-card:hover,
+  .studio-card:focus-visible {
+    transform: translateY(-3px);
+    border-color: var(--border-hover);
+  }
+
+  .studio-card:focus-visible { outline: 2px solid #6366F1; outline-offset: 3px; }
+
+  .studio-mark {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    font-weight: 800;
+    font-size: 14px;
+    color: #fff;
+    overflow: hidden;
+  }
+
+  .studio-mark.gradient { background: var(--gradient); font-family: 'Noto Sans Tamil', 'Inter', sans-serif; }
+  .studio-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .studio-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-strong);
+    margin-bottom: 6px;
+  }
+
+  .studio-desc {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .studio-stats {
+    display: flex;
+    gap: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .stat-value { font-size: 17px; font-weight: 700; color: #f4f4f5; }
+  .stat-label { font-size: 10.5px; color: var(--text-faint); }
+
+  .studio-open {
+    margin-left: auto;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .studio-open svg { width: 13px; height: 13px; }
+
+  .studio-card.thirukkural .studio-open { color: #a5b4fc; }
+  .studio-card.jp .studio-open { color: #f0abfc; }
+  .studio-card.tn .studio-open { color: #7dd3fc; }
+
+  footer {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--text-footer);
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <section class="hero">
+    <div class="hero-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect width="7" height="7" x="3" y="3" rx="1"/>
+        <rect width="7" height="7" x="14" y="3" rx="1"/>
+        <rect width="7" height="7" x="14" y="14" rx="1"/>
+        <rect width="7" height="7" x="3" y="14" rx="1"/>
+      </svg>
+    </div>
+    <h1>AI Content Studios</h1>
+    <p>Every automated content factory in this workspace, in one place.</p>
+  </section>
+
+  <section class="studio-grid" aria-label="Studios">
+
+    <a class="studio-card thirukkural" href="AI Thirukkural Studio (standalone).html">
+      <div class="studio-mark gradient">குறள்</div>
+      <div class="studio-name">AI Thirukkural Studio</div>
+      <div class="studio-desc">Converts all 1,330 Thirukkurals into educational Tamil videos — verse to publish.</div>
+      <div class="studio-stats">
+        <div><div class="stat-value">1,330</div><div class="stat-label">Kurals</div></div>
+        <div><div class="stat-value">284</div><div class="stat-label">Published</div></div>
+        <div class="studio-open">Open
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </div>
+    </a>
+
+    <a class="studio-card jp" href="JP Personal AI Studio.dc.html">
+      <div class="studio-mark"><img src="jp-logo-mark.png" alt=""></div>
+      <div class="studio-name">JP Personal AI Studio</div>
+      <div class="studio-desc">Daily AI &amp; digital-marketing content for Instagram, YouTube and TikTok.</div>
+      <div class="studio-stats">
+        <div><div class="stat-value" data-stat="jpPublished">5</div><div class="stat-label">Published</div></div>
+        <div><div class="stat-value" data-stat="jpStreak">4</div><div class="stat-label">Day streak</div></div>
+        <div class="studio-open">Open
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </div>
+    </a>
+
+    <a class="studio-card tn" href="AI Tamil News Studio.dc.html">
+      <div class="studio-mark"><img src="tn-logo-mark.png" alt=""></div>
+      <div class="studio-name">AI Tamil News Studio</div>
+      <div class="studio-desc">Pulls daily stories from Tamil news sites and turns them into short AI news videos.</div>
+      <div class="studio-stats">
+        <div><div class="stat-value" data-stat="tnArticles">24</div><div class="stat-label">Articles/mo</div></div>
+        <div><div class="stat-value" data-stat="tnPublished">5</div><div class="stat-label">Published</div></div>
+        <div class="studio-open">Open
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </div>
+    </a>
+
+  </section>
+
+  <footer>3 projects · workspace overview</footer>
+
+</main>
+
+<script type="module">
+  function setStat(name, value) {
+    const el = document.querySelector(`[data-stat="${name}"]`);
+    if (el) el.textContent = value;
+  }
+
+  import('./jp-data.js').then(JPDATA => {
+    const jpPublished = JPDATA.DAILY_ENTRIES.filter(e => e.status === 'published').length;
+    let streak = 0;
+    for (let d = JPDATA.TODAY_DAY - 1; d >= 1; d--) {
+      const e = JPDATA.DAILY_ENTRIES.find(x => x.day === d);
+      if (e && e.status === 'published') streak++;
+      else if (e) break;
+    }
+    setStat('jpPublished', jpPublished);
+    setStat('jpStreak', streak);
+  }).catch(() => {});
+
+  import('./tn-data.js').then(TNDATA => {
+    setStat('tnArticles', TNDATA.ARTICLES.length);
+    setStat('tnPublished', TNDATA.ARTICLES.filter(a => a.status === 'published').length);
+  }).catch(() => {});
+</script>
+
+</body>
+</html>
